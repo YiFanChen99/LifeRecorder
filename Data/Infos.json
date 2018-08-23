@@ -7,5 +7,13 @@
 		"Name": "Sleep",
 		"StartDate": "2018-08-13",
 		"Note": "睡眠時間，在隔天14點之前的額度，皆算在當天，例如1號晚上~2號早上的睡眠時間，以及2號的午睡，皆將記錄於1號身上。"
-	}]
+	}],
+	"Schema": [
+		{"Timeline": ["id", "date"]},
+		{"Flesh": ["id", "date_id", "count"]},
+		[
+			{"Sleep": ["id", "start", "end"]},
+			{"SleepDateView": ["date", "duration", "count"]}
+		]
+	]
 }
