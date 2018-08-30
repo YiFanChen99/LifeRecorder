@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from ModelUtility.DataAccessor.DbTableAccessor import Sleep, Flesh
 import datetime

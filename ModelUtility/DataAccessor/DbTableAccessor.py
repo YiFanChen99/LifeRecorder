@@ -3,7 +3,7 @@ from peewee import *
 import datetime
 import unittest
 
-from Base.DbOrmAccessor import db, BaseModel
+from ModelUtility.DataAccessor.Base.DbOrmAccessor import db, BaseModel
 
 
 class Timeline(BaseModel):
