@@ -10,19 +10,7 @@ class Timeline(BaseModel):
     date = DateField(default=datetime.date.today)
 
 
-class DateBaseModel(BaseModel):
-    date = DateField(default=datetime.date.today)
-
-    @classmethod
-    def create(cls, **kwargs):
-        param_date = kwargs.get('date', None)
-        if (param_date is not None) and not isinstance(param_date, Timeline):
-            kwargs['date'] = Timeline.get_or_create(date=param_date)[0]
-
-        super(DateBaseModel, cls).create(**kwargs)
-
-
-class Flesh(DateBaseModel):
+class Flesh(BaseModel):
     date = ForeignKeyField(Timeline, backref='flesh')
     count = FloatField(default=1.0)
 
@@ -31,16 +19,8 @@ class Sleep(BaseModel):
     start = DateTimeField()
     end = DateTimeField()
 
-    @classmethod
-    def create(cls, **kwargs):
-        datetime_end = kwargs.get('end')
-        param_date = datetime_end - datetime.timedelta(hours=14)
 
-        Timeline.get_or_create(date=param_date)
-        super(BaseModel, cls).create(**kwargs)
-
-
-class SleepDateView(DateBaseModel):
+class SleepDateView(BaseModel):
     date = DateField()
     duration = TimeField()
     count = IntegerField()
