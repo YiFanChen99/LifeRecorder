@@ -12,7 +12,7 @@ def create_sleep():
     time_start = datetime.time(13, 15)
     time_end = datetime.time(13, 30)
 
-    SleepModel.create(
+    SleepModel.create_by_datetime(
         start=datetime.datetime.combine(date, time_start),
         end=datetime.datetime.combine(date, time_end))
 
