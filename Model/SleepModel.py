@@ -3,7 +3,7 @@
 import datetime
 
 import ModelUtility.Utility as Utility
-from ModelUtility.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist
+from ModelUtility.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist, IntegrityError
 
 
 class SleepModel(object):
@@ -13,11 +13,9 @@ class SleepModel(object):
         Utility.init_timeline_on_date(date_belonged)
 
         duration_before = SleepDateViewModel.get_duration(date_belonged)
-        Sleep.create(start=start, end=end)
+        SleepModel._create(start=start, end=end)
         duration_after = SleepDateViewModel.get_duration(date_belonged)
-        duration_growth = datetime.time(
-            duration_after.hour - duration_before.hour,
-            duration_after.minute - duration_before.minute)
+        duration_growth = Utility.get_time_growth(duration_before, duration_after)
         return [date_belonged, duration_growth]
 
     @staticmethod
@@ -29,6 +27,13 @@ class SleepModel(object):
     @staticmethod
     def get_date_belonged(the_datetime):
         return (the_datetime - datetime.timedelta(hours=14)).date()
+
+    @staticmethod
+    def _create(**kwargs):
+        try:
+            Sleep.create(**kwargs)
+        except IntegrityError as ex:
+            raise ValueError("IntegrityError") from ex
 
 
 class SleepDateViewModel(object):

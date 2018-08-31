@@ -53,8 +53,8 @@ class SleepAdderWindow(BaseMainWindow):
 
         ''' display_widget '''
         layout = QHBoxLayout()
-        self.message = QLabel()
-        layout.addWidget(self.message)
+        self.message_box = QLabel()
+        layout.addWidget(self.message_box)
         display_widget.setLayout(layout)
 
     def _init_footer(self):
@@ -77,20 +77,24 @@ class SleepAdderWindow(BaseMainWindow):
         self.end_hour.setValue(QTime.currentTime().hour())
         self.end_minute.setValue(QTime.currentTime().minute())
         self.end_minute.setValue(QTime.currentTime().minute())
-        self.message.clear()
+        self.message_box.clear()
 
     def add_sleep(self):
         date = datetime.datetime.strptime(self.date.text(), "%Y-%m-%d").date()
         time_start = datetime.time(self.start_hour.value(), self.start_minute.value())
         time_end = datetime.time(self.end_hour.value(), self.end_minute.value())
 
-        feedback = SleepModel.create_by_date(date, time_start, time_end)
-        self.display_message(*feedback)
+        try:
+            feedback = SleepModel.create_by_date(date, time_start, time_end)
+            self.message_box.setText(self._form_succeeded_message(*feedback))
+        except ValueError as ex:
+            self.message_box.setText("Failed. (ValueError: %s)" % str(ex))
 
-    def display_message(self, date_belonged, duration_growth):
-        self.message.setText("{0}:  +{1} --> {2}".format(
+    @staticmethod
+    def _form_succeeded_message(date_belonged, duration_growth):
+        return "{0}:  +{1} --> {2}".format(
             date_belonged, duration_growth.strftime('%H:%M'),
-            SleepDateViewModel.get_duration(date_belonged).strftime('%H:%M')))
+            SleepDateViewModel.get_duration(date_belonged).strftime('%H:%M'))
 
 
 if __name__ == "__main__":

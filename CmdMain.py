@@ -12,13 +12,20 @@ def create_sleep():
     time_start = datetime.time(13, 15)
     time_end = datetime.time(13, 30)
 
-    SleepModel.create_by_datetime(
-        start=datetime.datetime.combine(date, time_start),
-        end=datetime.datetime.combine(date, time_end))
+    try:
+        SleepModel.create_by_date(date, time_start, time_end)
+    except ValueError:
+        print("Failed to create sleep with [{0}, {1}, {2}]".format(date, time_start, time_end))
 
 
 def create_flesh():
-    FleshModel.create(date=datetime.date(2018, 8, 31), count=1.0)
+    date = datetime.date(2018, 8, 31)
+    count = 1.0
+
+    try:
+        FleshModel.create(date=date, count=count)
+    except ValueError:
+        print("Failed to create flesh with [{0}, {1}]".format(date, count))
 
 
 if __name__ == "__main__":
