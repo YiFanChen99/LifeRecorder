@@ -9,8 +9,8 @@ from Model.SleepModel import SleepModel
 def create_sleep():
     date = datetime.date.today()
     # date = datetime.date(2018, 8, 22)
-    time_start = datetime.time(13, 15)
-    time_end = datetime.time(13, 30)
+    time_start = datetime.timedelta(hours=13, minutes=15)
+    time_end = datetime.timedelta(hours=13, minutes=30)
 
     try:
         SleepModel.create_by_date(date, time_start, time_end)

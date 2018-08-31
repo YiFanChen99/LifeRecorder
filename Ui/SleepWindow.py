@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate, QTime
 
 from Ui.Utility import BaseMainWindow, AlignHCLabel
-from Model.SleepModel import SleepModel, SleepDateViewModel
+from ModelUtility import Utility
+from Model.SleepModel import SleepModel
 
 
 class SleepAdderWindow(BaseMainWindow):
@@ -81,20 +82,16 @@ class SleepAdderWindow(BaseMainWindow):
 
     def add_sleep(self):
         date = datetime.datetime.strptime(self.date.text(), "%Y-%m-%d").date()
-        time_start = datetime.time(self.start_hour.value(), self.start_minute.value())
-        time_end = datetime.time(self.end_hour.value(), self.end_minute.value())
+        delta_start = datetime.timedelta(hours=self.start_hour.value(), minutes=self.start_minute.value())
+        delta_end = datetime.timedelta(hours=self.end_hour.value(), minutes=self.end_minute.value())
 
         try:
-            feedback = SleepModel.create_by_date(date, time_start, time_end)
-            self.message_box.setText(self._form_succeeded_message(*feedback))
+            feedback = SleepModel.create_by_date(date, delta_start, delta_end)
+            self.message_box.setText("{0}:  +{1}  -->  {2}".format(
+                feedback['date'], Utility.str_timedelta(feedback['growth']),
+                Utility.str_timedelta(feedback['after'])))
         except ValueError as ex:
             self.message_box.setText("Failed. (ValueError: %s)" % str(ex))
-
-    @staticmethod
-    def _form_succeeded_message(date_belonged, duration_growth):
-        return "{0}:  +{1} --> {2}".format(
-            date_belonged, duration_growth.strftime('%H:%M'),
-            SleepDateViewModel.get_duration(date_belonged).strftime('%H:%M'))
 
 
 if __name__ == "__main__":
