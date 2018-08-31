@@ -84,18 +84,13 @@ class SleepAdderWindow(BaseMainWindow):
         time_start = datetime.time(self.start_hour.value(), self.start_minute.value())
         time_end = datetime.time(self.end_hour.value(), self.end_minute.value())
 
-        duration_before = SleepDateViewModel.get_duration(date)
-        SleepModel.create_by_date(date, time_start, time_end)
-        duration_after = SleepDateViewModel.get_duration(date)
-        self.display_message(date, duration_before, duration_after)
+        feedback = SleepModel.create_by_date(date, time_start, time_end)
+        self.display_message(*feedback)
 
-    def display_message(self, date, duration_before, duration_after):
-        duration_growth = datetime.time(
-            duration_after.hour - duration_before.hour,
-            duration_after.minute - duration_before.minute)
-        self.message.setText("{0}: {1} -> {2} (+{3})".format(
-            date, duration_before.strftime('%H:%M'), duration_after.strftime('%H:%M'),
-            duration_growth.strftime('%H:%M')))
+    def display_message(self, date_belonged, duration_growth):
+        self.message.setText("{0}:  +{1} --> {2}".format(
+            date_belonged, duration_growth.strftime('%H:%M'),
+            SleepDateViewModel.get_duration(date_belonged).strftime('%H:%M')))
 
 
 if __name__ == "__main__":
