@@ -5,11 +5,13 @@ from PyQt5.QtWidgets import *
 
 from Ui.Utility import BaseMainWindow
 from Ui.SleepWindow import SleepAdderWindow
+from Ui.FleshWindow import FleshAdderWindow
 
 
 class MainWindow(BaseMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self._init_footer()
 
         self.resize(600, 150)
         self.move(600, 150)
@@ -29,6 +31,7 @@ class MainWindow(BaseMainWindow):
         flesh_btn = QPushButton("&Flesh")
         layout.addWidget(flesh_btn)
         flesh_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        flesh_btn.clicked.connect(FleshAdderWindow(self).show)
 
         sleep_btn = QPushButton("&Sleep")
         layout.addWidget(sleep_btn)
@@ -36,6 +39,8 @@ class MainWindow(BaseMainWindow):
         sleep_btn.clicked.connect(SleepAdderWindow(self).show)
 
     def _init_footer(self):
+        super(MainWindow, self)._init_footer()
+
         self.footer_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 
         footer_box = self.footer_box

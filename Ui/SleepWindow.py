@@ -5,12 +5,12 @@ import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate
 
-from Ui.Utility import BaseMainWindow, AlignHCLabel
+from Ui.Utility import BaseAdderWindow, AlignHCLabel
 from ModelUtility import Utility
 from Model.SleepModel import SleepModel
 
 
-class SleepAdderWindow(BaseMainWindow):
+class SleepAdderWindow(BaseAdderWindow):
     def __init__(self, parent=None):
         super(SleepAdderWindow, self).__init__(parent)
 
@@ -18,19 +18,14 @@ class SleepAdderWindow(BaseMainWindow):
         self.setWindowTitle("Sleep Adder")
 
     def _init_layout(self):
-        self._init_input_view()
-
-    def _init_input_view(self):
         self.input_layout = QVBoxLayout()
         input_layout = self.input_layout
         self.central_layout.addLayout(input_layout)
 
         date_layout = QHBoxLayout()
         time_layout = QHBoxLayout()
-        display_widget = QGroupBox()
         input_layout.addLayout(date_layout)
         input_layout.addLayout(time_layout)
-        input_layout.addWidget(display_widget)
 
         ''' date_layout '''
         date_label = AlignHCLabel("Date:")
@@ -52,26 +47,11 @@ class SleepAdderWindow(BaseMainWindow):
         self.end_minute = QSpinBox()
         time_layout.addWidget(self.end_minute)
 
-        ''' display_widget '''
-        layout = QHBoxLayout()
-        self.message_box = QLabel()
-        layout.addWidget(self.message_box)
-        display_widget.setLayout(layout)
-
-    def _init_footer(self):
-        footer_box = QDialogButtonBox(QDialogButtonBox.Reset | QDialogButtonBox.Save | QDialogButtonBox.Close)
-        footer_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset_input_view)
-        footer_box.accepted.connect(self.add_sleep)
-        footer_box.rejected.connect(self.close)
-
-        self.central_layout.addWidget(footer_box)
-        self.footer_box = footer_box
-
     def show(self):
         super(SleepAdderWindow, self).show()
-        self.reset_input_view()
+        self.reset_values()
 
-    def reset_input_view(self):
+    def reset_values(self):
         self.date.setText(str(QDate.currentDate().toPyDate()))
         self.start_hour.setValue(1)
         self.start_minute.setValue(0)
@@ -79,7 +59,7 @@ class SleepAdderWindow(BaseMainWindow):
         self.end_minute.setValue(30)
         self.message_box.clear()
 
-    def add_sleep(self):
+    def add(self):
         date = datetime.datetime.strptime(self.date.text(), "%Y-%m-%d").date()
         delta_start = datetime.timedelta(hours=self.start_hour.value(), minutes=self.start_minute.value())
         delta_end = datetime.timedelta(hours=self.end_hour.value(), minutes=self.end_minute.value())
