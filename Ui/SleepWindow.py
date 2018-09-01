@@ -3,7 +3,7 @@
 import sys
 import datetime
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QDate, QTime
+from PyQt5.QtCore import QDate
 
 from Ui.Utility import BaseMainWindow, AlignHCLabel
 from ModelUtility import Utility
@@ -73,11 +73,10 @@ class SleepAdderWindow(BaseMainWindow):
 
     def reset_input_view(self):
         self.date.setText(str(QDate.currentDate().toPyDate()))
-        self.start_hour.setValue(QTime.currentTime().hour())
-        self.start_minute.setValue(QTime.currentTime().minute())
-        self.end_hour.setValue(QTime.currentTime().hour())
-        self.end_minute.setValue(QTime.currentTime().minute())
-        self.end_minute.setValue(QTime.currentTime().minute())
+        self.start_hour.setValue(1)
+        self.start_minute.setValue(0)
+        self.end_hour.setValue(13)
+        self.end_minute.setValue(30)
         self.message_box.clear()
 
     def add_sleep(self):

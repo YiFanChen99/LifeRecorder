@@ -31,4 +31,4 @@ class BaseMainWindow(QMainWindow):
 class AlignHCLabel(QLabel):
     def __init__(self, *args, **kwargs):
         super(AlignHCLabel, self).__init__(*args, **kwargs)
-        self.setAlignment(Qt.AlignHCenter)
+        self.setAlignment(Qt.AlignCenter)
