@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 import sys
 import datetime
-from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate
 from PyQt5.QtGui import QDoubleValidator
 
-from Ui.Utility import BaseAdderWindow
+from Ui.Utility import *
 from Model.FleshModel import FleshModel
 
 
-class FleshAdderWindow(BaseAdderWindow):
+class FleshAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
     def __init__(self, parent=None):
         super(FleshAdderWindow, self).__init__(parent)
 
@@ -18,6 +17,11 @@ class FleshAdderWindow(BaseAdderWindow):
         self.setWindowTitle("Flesh Adder")
 
     def _init_layout(self):
+        self._init_input_layout()
+        self._init_message_box()
+        self._init_footer()
+
+    def _init_input_layout(self):
         self.input_layout = QFormLayout()
         input_layout = self.input_layout
         self.central_layout.addLayout(input_layout)

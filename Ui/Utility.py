@@ -19,9 +19,6 @@ class BaseMainWindow(QMainWindow):
     def _init_layout(self):
         raise NotImplementedError()
 
-    def _init_footer(self):
-        self.add_h_line()
-
     @property
     def central_layout(self):
         return self.centralWidget().layout()
@@ -31,14 +28,16 @@ class BaseMainWindow(QMainWindow):
         self.central_layout.addWidget(line)
 
 
-class BaseMessageWindow(BaseMainWindow):
-    def __init__(self, parent=None):
-        super(BaseMessageWindow, self).__init__(parent)
-        self._init_message_box()
+class _BaseExtendedMainWindow(object):
+    def __init__(self, *args):
+        if not isinstance(self, BaseMainWindow):
+            raise TypeError("Not a BaseMainWindow.")
 
-    def _init_layout(self):
-        raise NotImplementedError()
+        super(_BaseExtendedMainWindow, self).__init__(*args)
 
+
+# noinspection PyUnresolvedReferences
+class BaseMessageBoxWindow(_BaseExtendedMainWindow):
     def _init_message_box(self):
         self.add_h_line()
 
@@ -51,16 +50,10 @@ class BaseMessageWindow(BaseMainWindow):
         box.setLayout(layout)
 
 
-class BaseAdderWindow(BaseMessageWindow):
-    def __init__(self, parent=None):
-        super(BaseAdderWindow, self).__init__(parent)
-        self._init_footer()
-
-    def _init_layout(self):
-        raise NotImplementedError()
-
+# noinspection PyUnresolvedReferences
+class BaseAdderWindow(_BaseExtendedMainWindow):
     def _init_footer(self):
-        super(BaseAdderWindow, self)._init_footer()
+        self.add_h_line()
 
         footer_box = QDialogButtonBox(QDialogButtonBox.Reset | QDialogButtonBox.Save | QDialogButtonBox.Close)
         footer_box.button(QDialogButtonBox.Reset).clicked.connect(self.reset_values)

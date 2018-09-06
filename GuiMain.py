@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-from PyQt5.QtWidgets import *
 
-from Ui.Utility import BaseMainWindow
+from Ui.Utility import *
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
 
@@ -11,16 +10,16 @@ from Ui.FleshWindow import FleshAdderWindow
 class MainWindow(BaseMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        self._init_footer()
 
         self.resize(600, 150)
         self.move(600, 150)
         self.setWindowTitle("Life Recorder")
 
     def _init_layout(self):
-        self._init_adder_box()
+        self._init_adder()
+        self._init_footer()
 
-    def _init_adder_box(self):
+    def _init_adder(self):
         self.record_adder_box = QGroupBox("Record Adder")
         record_adder_box = self.record_adder_box
         self.central_layout.addWidget(record_adder_box)
@@ -39,7 +38,7 @@ class MainWindow(BaseMainWindow):
         sleep_btn.clicked.connect(SleepAdderWindow(self).show)
 
     def _init_footer(self):
-        super(MainWindow, self)._init_footer()
+        self.add_h_line()
 
         self.footer_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 

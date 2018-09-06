@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 import sys
 import datetime
-from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate
 
-from Ui.Utility import BaseAdderWindow, AlignHCLabel
+from Ui.Utility import *
 from ModelUtility import Utility
 from Model.SleepModel import SleepModel
 
 
-class SleepAdderWindow(BaseAdderWindow):
+class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
     def __init__(self, parent=None):
         super(SleepAdderWindow, self).__init__(parent)
 
@@ -18,6 +17,11 @@ class SleepAdderWindow(BaseAdderWindow):
         self.setWindowTitle("Sleep Adder")
 
     def _init_layout(self):
+        self._init_input_layout()
+        self._init_message_box()
+        self._init_footer()
+
+    def _init_input_layout(self):
         self.input_layout = QVBoxLayout()
         input_layout = self.input_layout
         self.central_layout.addLayout(input_layout)
