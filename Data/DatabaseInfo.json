@@ -13,7 +13,7 @@
 		{"Flesh": ["id", "date_id", "count"]},
 		[
 			{"Sleep": ["id", "start", "end"]},
-			{"SleepDateView": ["date", "duration", "count"]}
+			{"SleepDateView": ["id", "date", "duration", "count"]}
 		]
 	]
 }

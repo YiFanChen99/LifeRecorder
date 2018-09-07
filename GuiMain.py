@@ -5,18 +5,20 @@ import sys
 from Ui.Utility import *
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
+from Model.TableModel import FilterModel
 
 
 class MainWindow(BaseMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.resize(600, 150)
+        self.resize(600, 400)
         self.move(600, 150)
         self.setWindowTitle("Life Recorder")
 
     def _init_layout(self):
         self._init_adder()
+        self._init_table_view()
         self._init_footer()
 
     def _init_adder(self):
@@ -36,6 +38,19 @@ class MainWindow(BaseMainWindow):
         layout.addWidget(sleep_btn)
         sleep_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sleep_btn.clicked.connect(SleepAdderWindow(self).show)
+
+    def _init_table_view(self):
+        self.table_view = QTableView()
+        table_view = self.table_view
+        self.central_layout.addWidget(table_view)
+
+        self.table_model = FilterModel()
+        table_view.setModel(self.table_model)
+        table_view.resizeColumnsToContents()
+        table_view.setSortingEnabled(True)
+        table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        table_view.setColumnHidden(0, True)
 
     def _init_footer(self):
         self.add_h_line()
