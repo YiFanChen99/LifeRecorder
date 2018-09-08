@@ -1,3 +1,6 @@
-[submodule "ModelUtility/DataAccessor/Base"]
-	path = ModelUtility/DataAccessor/Base
-	url = git@github.com:YiFanChen99/DataAccessor.git
+[submodule "ModelUtility/DataAccessor/DbAccessor"]
+	path = ModelUtility/DataAccessor/DbAccessor
+	url = git@github.com:YiFanChen99/DbAccessor.git
+[submodule "ModelUtility/DataAccessor/JsonAccessor"]
+	path = ModelUtility/DataAccessor/JsonAccessor
+	url = git@github.com:YiFanChen99/JsonAccessor.git
