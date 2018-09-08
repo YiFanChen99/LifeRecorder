@@ -2,3 +2,4 @@
 /.idea
 venv
 TestMain.py
+Data/ConfigUser.json

@@ -4,6 +4,7 @@ import datetime
 import unittest
 
 from ModelUtility.DataAccessor.DbAccessor.DbOrmAccessor import db, BaseModel
+from ModelUtility.DataAccessor.Configure import config
 
 
 class Timeline(BaseModel):
@@ -89,6 +90,5 @@ class _JoinTest(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 else:
-    db.init("D:\Dropbox\YiFanAndPig\LifeRecorder.db")
+    db.init(config['db_path'])
     db.connect()
-

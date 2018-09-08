@@ -6,15 +6,17 @@ from Ui.Utility import *
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
 from Model.TableModel import FilterModel
+from ModelUtility.DataAccessor.Configure import config
 
 
 class MainWindow(BaseMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.resize(600, 400)
-        self.move(600, 150)
-        self.setWindowTitle("Life Recorder")
+        config_w = config['window']
+        self.resize(config_w['width'], config_w['height'])
+        self.move(config_w['x_axis'], config_w['y_axis'])
+        self.setWindowTitle(config_w['title'])
 
     def _init_layout(self):
         self._init_adder()
