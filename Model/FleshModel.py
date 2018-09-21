@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import ModelUtility.Utility as Utility
+from ModelUtility import Utility
 from ModelUtility.DataAccessor.DbTableAccessor import Timeline, Flesh, DoesNotExist
 
 

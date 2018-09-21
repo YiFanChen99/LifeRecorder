@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import sys
 
-from Ui.Utility import *
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
+from Ui.Utility.Window import *
 from Model.TableModel import FilterModel
 from ModelUtility.DataAccessor.Configure import config
 

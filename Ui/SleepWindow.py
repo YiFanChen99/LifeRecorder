@@ -4,8 +4,9 @@ import sys
 import datetime
 from PyQt5.QtCore import QDate
 
-from Ui.Utility import *
-from ModelUtility import Utility
+from Ui.Utility.Window import *
+from Ui.Utility.Widget import AlignHCLabel
+from ModelUtility import TimeUtility
 from Model.SleepModel import SleepModel
 
 
@@ -71,8 +72,8 @@ class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
         try:
             feedback = SleepModel.create_by_date(date, delta_start, delta_end)
             self.message_box.setText("{0}:  +{1}  -->  {2}".format(
-                feedback['date'], Utility.str_timedelta(feedback['growth']),
-                Utility.str_timedelta(feedback['after'])))
+                feedback['date'], TimeUtility.str_timedelta(feedback['growth']),
+                TimeUtility.str_timedelta(feedback['after'])))
         except ValueError as ex:
             self.message_box.setText("Failed. (ValueError: %s)" % str(ex))
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-import ModelUtility.Utility as Utility
+from ModelUtility import Utility, TimeUtility
 from ModelUtility.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist, IntegrityError
 
 
@@ -34,8 +34,8 @@ class SleepModel(object):
             time_end += datetime.timedelta(days=1)
         elif time_start == time_end:
             raise ValueError("Start is equal to end.")
-        start = datetime.datetime.combine(date, Utility.covert_timedelta_to_time(time_start))
-        end = datetime.datetime.combine(date, Utility.covert_timedelta_to_time(time_end))
+        start = datetime.datetime.combine(date, TimeUtility.covert_timedelta_to_time(time_start))
+        end = datetime.datetime.combine(date, TimeUtility.covert_timedelta_to_time(time_end))
 
         return SleepModel._create_with_feedback(start=start, end=end)
 
