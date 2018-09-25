@@ -3,7 +3,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-from ModelUtility.DataAccessor.DbTableAccessor import Sleep
+from ModelUtility.DataAccessor.DbTableAccessor import *
 
 
 class FilterModel(QSortFilterProxyModel):
@@ -14,12 +14,22 @@ class FilterModel(QSortFilterProxyModel):
 
 
 class PeeweeTableModel(QAbstractTableModel):
-    table_name = ""
-    column_names = []
-
-    def __init__(self, model_data, parent=None):
+    def __init__(self, model_data=None, parent=None):
         super(PeeweeTableModel, self).__init__(parent)
-        self.model_data = model_data
+
+        self.column_names = self.get_init_column_names()
+        self.model_data = model_data if model_data else self.get_all_model_data()
+
+    @classmethod
+    def _get_db_model(cls):
+        raise NotImplementedError()
+
+    @classmethod
+    def get_init_column_names(cls):
+        return cls._get_db_model().get_column_names()
+
+    def get_all_model_data(self):
+        return list(self._get_db_model().select())
 
     def rowCount(self, *args):
         return len(self.model_data)
@@ -45,18 +55,41 @@ class PeeweeTableModel(QAbstractTableModel):
                 return index
 
     def data_record(self, records, index):
-        raise NotImplementedError()
+        return str(getattr(records, self.column_names[index]))
+
+
+class SleepDateViewTableModel(PeeweeTableModel):
+    @classmethod
+    def _get_db_model(cls):
+        return SleepDateView
 
 
 class SleepTableModel(PeeweeTableModel):
-    table_name = "Sleep"
-    column_names = Sleep.get_column_names()
+    @classmethod
+    def _get_db_model(cls):
+        return Sleep
 
-    def __init__(self, model_data=None, parent=None):
-        if model_data is None:
-            model_data = list(Sleep.select())
-
-        super(SleepTableModel, self).__init__(model_data, parent)
+    @classmethod
+    def get_init_column_names(cls):
+        return cls._get_db_model().get_column_names() + ['duration']
 
     def data_record(self, records, index):
-        return str(getattr(records, self.column_names[index]))
+        if index <= 2:  # start, end
+            return super(SleepTableModel, self).data_record(records, index)
+        else:  # duration
+            return str(records.end - records.start)
+
+
+class FleshTableModel(PeeweeTableModel):
+    @classmethod
+    def _get_db_model(cls):
+        raise NotImplementedError()
+
+    @classmethod
+    def get_init_column_names(cls):
+        return ['id', 'date', 'count']
+
+    def get_all_model_data(self):
+        data = Timeline.select(Timeline.id, Timeline.date, fn.SUM(Flesh.count).alias('count')).join(
+            Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date)).group_by(Timeline.date)
+        return list(data)
