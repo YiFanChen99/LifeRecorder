@@ -4,6 +4,7 @@ import sys
 
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
+from Ui.MainMenu import MainMenu
 from Ui.Utility.Window import *
 from Model.TableModel import FilterModel
 from ModelUtility.DataAccessor.Configure import config
@@ -19,9 +20,19 @@ class MainWindow(BaseMainWindow):
         self.setWindowTitle(config_w['title'])
 
     def _init_layout(self):
+        self._init_menu()
         self._init_adder()
         self._init_table_view()
         self._init_footer()
+
+        self.main_menu.trigger_default()
+
+    def _init_menu(self):
+        self.main_menu = MainMenu(self)
+
+        self.central_layout.addWidget(self.main_menu.level_1_menu)
+        for level_2_menu in self.main_menu.level_2_menus.values():
+            self.central_layout.addWidget(level_2_menu)
 
     def _init_adder(self):
         self.record_adder_box = QGroupBox("Record Adder")
