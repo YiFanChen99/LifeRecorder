@@ -7,7 +7,7 @@ from PyQt5.QtCore import QDate
 from Ui.Utility.Window import *
 from Ui.Utility.Widget import AlignHCLabel
 from ModelUtility import TimeUtility
-from Model.SleepModel import SleepModel
+from Model.DbTableModel.SleepModel import SleepModel
 
 
 class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):

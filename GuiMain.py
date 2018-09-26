@@ -6,7 +6,7 @@ from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.MainMenu import MainMenu
 from Ui.Utility.Window import *
-from Model.TableModel import FilterModel
+from Model.TableViewModel import FilterModel
 from ModelUtility.DataAccessor.Configure import config
 
 

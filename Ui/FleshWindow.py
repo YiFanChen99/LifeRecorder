@@ -6,7 +6,7 @@ from PyQt5.QtCore import QDate
 from PyQt5.QtGui import QDoubleValidator
 
 from Ui.Utility.Window import *
-from Model.FleshModel import FleshModel
+from Model.DbTableModel.FleshModel import FleshModel
 
 
 class FleshAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):

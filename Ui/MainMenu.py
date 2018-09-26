@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from Ui.Utility.Widget import HBoxMenu, QWidget
 
-from Model.TableModel import *
+from Model.TableViewModel import *
 
 
 class MainMenu(QWidget):
