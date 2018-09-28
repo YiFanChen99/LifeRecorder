@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from Model.DbTableModel.BaseModel import BaseModel
 from ModelUtility import Utility
-from ModelUtility.DataAccessor.DbTableAccessor import Timeline, Flesh, DoesNotExist
+from ModelUtility.DataAccessor.DbTableAccessor import Timeline, Flesh, DoesNotExist, fn, JOIN
 
 
-class FleshModel(object):
+class FleshModel(BaseModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'date', 'count']
+
+    @classmethod
+    def get_data(cls):
+        return list(Timeline.select(Timeline.id, Timeline.date, fn.SUM(Flesh.count).alias('count')).join(
+            Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date)).group_by(Timeline.date))
+
     @staticmethod
     def add(date, count):
         if count <= 0:

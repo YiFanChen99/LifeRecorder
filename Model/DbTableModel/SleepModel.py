@@ -2,18 +2,23 @@
 # -*- coding: utf-8 -*-
 import datetime
 
+from Model.DbTableModel.BaseModel import SimpleModel
 from ModelUtility import Utility, TimeUtility
-from ModelUtility.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist, IntegrityError
+from ModelUtility.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist
 
 
-class SleepModel(object):
+class SleepModel(SimpleModel):
+    @classmethod
+    def get_accessor(cls):
+        return Sleep
+
     @staticmethod
     def _create_with_feedback(start, end):
         date_belonged = SleepModel.get_date_belonged(end)
         duration_before = SleepDateViewModel.get_duration(date_belonged)
 
         Utility.init_timeline_on_date(date_belonged)
-        SleepModel._create(start=start, end=end)
+        SleepModel.create(start=start, end=end)
 
         duration_after = SleepDateViewModel.get_duration(date_belonged)
         duration_growth = duration_after - duration_before
@@ -43,15 +48,12 @@ class SleepModel(object):
     def get_date_belonged(the_datetime):
         return (the_datetime - datetime.timedelta(hours=17)).date()
 
-    @staticmethod
-    def _create(**kwargs):
-        try:
-            Sleep.create(**kwargs)
-        except IntegrityError as ex:
-            raise ValueError("IntegrityError") from ex
 
+class SleepDateViewModel(SimpleModel):
+    @classmethod
+    def get_accessor(cls):
+        return SleepDateView
 
-class SleepDateViewModel(object):
     @staticmethod
     def get_duration(date):
         try:

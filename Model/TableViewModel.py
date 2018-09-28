@@ -3,7 +3,8 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-from ModelUtility.DataAccessor.DbTableAccessor import *
+from Model.DbTableModel.SleepModel import SleepModel, SleepDateViewModel
+from Model.DbTableModel.FleshModel import FleshModel
 
 
 class FilterModel(QSortFilterProxyModel):
@@ -17,25 +18,26 @@ class PeeweeTableModel(QAbstractTableModel):
     def __init__(self, model_data=None, parent=None):
         super(PeeweeTableModel, self).__init__(parent)
 
-        self.column_names = self.get_init_column_names()
+        self.column_headers = self.get_column_headers()
         self.model_data = model_data if model_data else self.get_all_model_data()
 
     @classmethod
-    def _get_db_model(cls):
+    def get_db_model(cls):
         raise NotImplementedError()
 
     @classmethod
-    def get_init_column_names(cls):
-        return cls._get_db_model().get_column_names()
+    def get_column_headers(cls):
+        return cls.get_db_model().get_column_names()
 
-    def get_all_model_data(self):
-        return list(self._get_db_model().select())
+    @classmethod
+    def get_all_model_data(cls):
+        return cls.get_db_model().get_data()
 
     def rowCount(self, *args):
         return len(self.model_data)
 
     def columnCount(self, *args):
-        return len(self.column_names)
+        return len(self.column_headers)
 
     def data(self, q_index, role=None):
         if role == Qt.DisplayRole:
@@ -50,28 +52,30 @@ class PeeweeTableModel(QAbstractTableModel):
     def headerData(self, index, orientation, role=None):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return self.column_names[index]
+                return self.column_headers[index]
             else:
                 return index
 
     def data_record(self, records, index):
-        return str(getattr(records, self.column_names[index]))
+        return str(getattr(records, self.column_headers[index]))
 
 
 class SleepDateViewTableModel(PeeweeTableModel):
     @classmethod
-    def _get_db_model(cls):
-        return SleepDateView
+    def get_db_model(cls):
+        return SleepDateViewModel
 
 
 class SleepTableModel(PeeweeTableModel):
     @classmethod
-    def _get_db_model(cls):
-        return Sleep
+    def get_db_model(cls):
+        return SleepModel
 
     @classmethod
-    def get_init_column_names(cls):
-        return cls._get_db_model().get_column_names() + ['duration']
+    def get_column_headers(cls):
+        headers = super(SleepTableModel, cls).get_column_headers()
+        headers.append('duration')
+        return headers
 
     def data_record(self, records, index):
         if index <= 2:  # start, end
@@ -82,14 +86,7 @@ class SleepTableModel(PeeweeTableModel):
 
 class FleshTableModel(PeeweeTableModel):
     @classmethod
-    def _get_db_model(cls):
-        raise NotImplementedError()
+    def get_db_model(cls):
+        return FleshModel
 
-    @classmethod
-    def get_init_column_names(cls):
-        return ['id', 'date', 'count']
 
-    def get_all_model_data(self):
-        data = Timeline.select(Timeline.id, Timeline.date, fn.SUM(Flesh.count).alias('count')).join(
-            Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date)).group_by(Timeline.date)
-        return list(data)
