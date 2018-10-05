@@ -9,6 +9,25 @@ class MainMenu(QWidget):
     # noinspection PyProtectedMember
     CONFIG = {
         'menu': {
+            'Record': {
+                'callback': lambda obj: obj._changing_level_2_menu('Record'),
+                'shortcut': 'F1',
+                'menu': {
+                    'Records': {
+                        'shortcut': 'Ctrl+1',
+                        'callback': lambda obj: obj._changing_source_model(RecordTableModel()),
+                    },
+                    'RecordGroup': {
+                        'shortcut': 'Ctrl+2',
+                        'callback': lambda obj: obj._changing_source_model(RecordGroupTableModel()),
+                    },
+                    'GroupRelation': {
+                        'shortcut': 'Ctrl+3',
+                        'callback': lambda obj: obj._changing_source_model(GroupRelationTableModel()),
+                    },
+                },
+                'default_selection': 'Records',
+            },
             'Sleep': {
                 'callback': lambda obj: obj._changing_level_2_menu('Sleep'),
                 'shortcut': 'F2',
@@ -29,14 +48,14 @@ class MainMenu(QWidget):
                 'shortcut': 'F3',
                 'menu': {
                     'Flesh': {
-                        'shortcut': 'Ctrl+4',
+                        'shortcut': 'Ctrl+1',
                         'callback': lambda obj: obj._changing_source_model(FleshTableModel()),
                     },
                 },
                 'default_selection': 'Flesh',
-            }
+            },
         },
-        'default_selection': 'Sleep',
+        'default_selection': 'Record',
     }
 
     def __init__(self, owner):

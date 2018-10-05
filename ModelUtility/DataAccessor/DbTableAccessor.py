@@ -7,6 +7,10 @@ from ModelUtility.DataAccessor.DbAccessor.DbOrmAccessor import db, BaseModel
 from ModelUtility.DataAccessor.Configure import config
 
 
+def atomic():
+    return db.atomic()
+
+
 class Timeline(BaseModel):
     date = DateField(default=datetime.date.today)
 
@@ -27,16 +31,50 @@ class SleepDateView(BaseModel):
     count = IntegerField()
 
 
+class RecordGroup(BaseModel):
+    description = TextField(unique=True)
+    alias = TextField(null=True)
+
+
+class GroupRelation(BaseModel):
+    parent = ForeignKeyField(RecordGroup, backref='parent')
+    child = ForeignKeyField(RecordGroup, backref='child')
+
+
+class BasicRecord(BaseModel):
+    date_id = ForeignKeyField(Timeline, backref='basicrecord')
+    group_id = ForeignKeyField(RecordGroup, backref='basicrecord')
+
+
+class ExtraRecord(BaseModel):
+    basic_id = ForeignKeyField(BasicRecord, backref='extrarecord')
+    key = TextField(null=False)
+    value = TextField(null=False)
+
+
+_test_data = {
+    'record_group': ['讀書', '數學', '國文', '古典文學', '運動', '打坐']
+}
+
+
 class _BasicTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         db.init("./DbTableAccessorUnittest.db")
 
-    def test_current_rows(self):
+    def test_basic_tables(self):
         self.assertEqual(7, Flesh.select().count())
         self.assertEqual(24, Timeline.select().count())
         self.assertEqual(11, Sleep.select().count())
         self.assertEqual(7, SleepDateView.select().count())
+
+    def test_life_record_tables(self):
+        self.assertEqual(6, RecordGroup.select().count())
+        self.assertEqual(_test_data['record_group'],
+                         [record.description for record in RecordGroup.select()])
+        self.assertEqual(3, GroupRelation.select().count())
+        self.assertEqual(4, BasicRecord.select().count())
+        self.assertEqual(5, ExtraRecord.select().count())
 
 
 class _JoinTest(unittest.TestCase):
@@ -85,6 +123,37 @@ class _JoinTest(unittest.TestCase):
         self.assertEqual(0, len(flesh_records))
         self.assertEqual(datetime.time(7, 30), specific_date.sleepdateview.duration)
         self.assertEqual(2, specific_date.sleepdateview.count)
+
+
+class _TableOperationTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        db.init("./DbTableAccessorUnittest.db")
+
+    def test_create_tables(self):
+        with self.assertRaises(OperationalError):  # table already exists
+            db.create_tables([RecordGroup], safe=False)
+
+    def test_drop_tables(self):
+        with db.atomic() as transaction:
+            db.drop_tables([RecordGroup, GroupRelation])
+
+            with self.assertRaises(OperationalError):  # no such table
+                RecordGroup.select().count()
+            with self.assertRaises(OperationalError):  # no such table
+                GroupRelation.select().count()
+
+            transaction.rollback()
+
+    def test_create_record(self):
+        with db.atomic() as transaction:
+            with self.assertRaises(IntegrityError):  # UNIQUE constraint failed
+                RecordGroup.create(description='古典文學')
+
+            RecordGroup.create(description='Ha?Ha')
+            self.assertEqual(7, RecordGroup.select().count())
+
+            transaction.rollback()
 
 
 if __name__ == "__main__":

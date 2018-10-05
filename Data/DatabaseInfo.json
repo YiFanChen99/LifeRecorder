@@ -1,19 +1,58 @@
 {
-	"RecordTables": [{
-		"Name": "Flesh",
+	"Flesh": {
+		"Note": "2018-05-05 開始吃素兩週，之後開始限每兩週 5 餐可吃肉（開始記錄前皆有達成）。",
 		"StartDate": "2018-07-29",
-		"Note": "2018-05-05 開始吃素兩週，之後開始限每兩週 5 餐可吃肉（開始記錄前皆有達成）。"
-	}, {
-		"Name": "Sleep",
-		"StartDate": "2018-08-13",
-		"Note": "睡眠時間，在隔天17點之前的額度，皆算在當天，例如1號晚上~2號早上的睡眠時間，以及2號的午睡，皆將記錄於1號身上。"
-	}],
-	"Schema": [
-		{"Timeline": ["id", "date"]},
-		{"Flesh": ["id", "date_id", "count"]},
-		[
-			{"Sleep": ["id", "start", "end"]},
-			{"SleepDateView": ["id", "date", "duration", "count"]}
+		"Tables": [
+			{
+				"Name": "Flesh",
+				"Schema": ["id", "date_id", "count"],
+				"Note": "記錄每天吃肉的餐數。"
+			}
 		]
+	},
+	"Sleep": {
+		"Note": "睡眠時間記錄，在隔天17點之前的額度，皆算在當天，例如1號晚上~2號早上的睡眠時間，以及2號的午睡，皆將記錄於1號身上。",
+		"StartDate": "2018-08-13",
+		"Tables": [
+			{
+				"Name": "Sleep",
+				"Schema": ["id", "start", "end"],
+				"Note": "記錄每次睡眠的時段。"
+			}, {
+				"Name": "SleepDateView",
+				"Schema": ["id", "date", "duration", "count"],
+				"Note": "統計每天總計的睡眠時長與次數。"
+			}
+		]
+	},
+	"LifeRecord": {
+		"Note": "記錄每天進行了哪些活動。",
+		"StartDate": "2018-08-13",
+		"Tables": [
+			{
+				"Name": "BasicRecord",
+				"Schema": ["id", "date_id", "type_id"],
+				"Note": "每項記錄的對應日期以及對應類別。"
+			}, {
+				"Name": "ExtraRecord",
+				"Schema": ["id", "basic_id ", "key", "value"],
+				"Note": "記錄的補充資訊，例如補充敘述、時長、效率等等。"
+			}, {
+				"Name": "RecordGroup",
+				"Schema": ["id", "description", "alias"],
+				"Note": "記錄的類別。"
+			}, {
+				"Name": "GroupRelation",
+				"Schema": ["id", "parent_id", "child_id"],
+				"Note": "記錄類別間彼此的從屬關係，只記一層。"
+			}
+		]
+	},
+	"OtherTables": [
+		{
+			"Name": "Timeline",
+			"Schema": ["id", "date"],
+			"Note": "其他 tables 皆記錄日期的 id，靠此查詢實際日期。"
+		}
 	]
 }

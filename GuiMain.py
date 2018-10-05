@@ -4,6 +4,7 @@ import sys
 
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
+from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu
 from Ui.Utility.Window import *
 from Model.TableViewModel import FilterModel
@@ -42,15 +43,20 @@ class MainWindow(BaseMainWindow):
         layout = QHBoxLayout()
         record_adder_box.setLayout(layout)
 
-        flesh_btn = QPushButton("&Flesh")
-        layout.addWidget(flesh_btn)
-        flesh_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        flesh_btn.clicked.connect(FleshAdderWindow(self).show)
+        record_btn = QPushButton("&Record")
+        layout.addWidget(record_btn)
+        record_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        record_btn.clicked.connect(RecordAdderWindow(self).show)
 
         sleep_btn = QPushButton("&Sleep")
         layout.addWidget(sleep_btn)
         sleep_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sleep_btn.clicked.connect(SleepAdderWindow(self).show)
+
+        flesh_btn = QPushButton("&Flesh")
+        layout.addWidget(flesh_btn)
+        flesh_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        flesh_btn.clicked.connect(FleshAdderWindow(self).show)
 
     def _init_table_view(self):
         self.table_view = QTableView()

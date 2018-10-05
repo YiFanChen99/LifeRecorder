@@ -114,3 +114,11 @@ class DateEdit(QDateEdit):
     def setDate(self, *args):
         super(DateEdit, self).setDate(*args)
         self.setCurrentSectionIndex(2)
+
+
+class MapComboBox(QComboBox):
+    def __init__(self, the_map):
+        super(MapComboBox, self).__init__()
+
+        for key, value in the_map.items():
+            self.addItem(value, key)
