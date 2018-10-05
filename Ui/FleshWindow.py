@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-import datetime
 from PyQt5.QtCore import QDate
 from PyQt5.QtGui import QDoubleValidator
 
 from Ui.Utility.Window import *
+from Ui.Utility.Widget import DateEdit
 from Model.DbTableModel.FleshModel import FleshModel
 
 
@@ -28,24 +28,24 @@ class FleshAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
 
         input_layout.setSpacing(10)
 
-        self.date = QLineEdit()
-        input_layout.addRow("Date:", self.date)
-        self.count = QLineEdit()
-        input_layout.addRow("Count:", self.count)
+        self.date_field = DateEdit()
+        input_layout.addRow("Date:", self.date_field)
+        self.count_field = QLineEdit()
+        input_layout.addRow("Count:", self.count_field)
 
     def show(self):
         super(FleshAdderWindow, self).show()
         self.reset_values()
 
     def reset_values(self):
-        self.date.setText(str(QDate.currentDate().toPyDate()))
-        self.count.setText("1.0")
-        self.count.setValidator(QDoubleValidator(0, 10, 1, notation=QDoubleValidator.StandardNotation))
+        self.date_field.setDate(QDate.currentDate())
+        self.count_field.setText("1.0")
+        self.count_field.setValidator(QDoubleValidator(0, 10, 1, notation=QDoubleValidator.StandardNotation))
         self.message_box.clear()
 
     def add(self):
-        date = datetime.datetime.strptime(self.date.text(), "%Y-%m-%d").date()
-        count = float(self.count.text())
+        date = self.date_field.get_date()
+        count = float(self.count_field.text())
 
         try:
             count_after = FleshModel.add(date, count)

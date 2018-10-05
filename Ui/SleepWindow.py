@@ -5,7 +5,7 @@ import datetime
 from PyQt5.QtCore import QDate
 
 from Ui.Utility.Window import *
-from Ui.Utility.Widget import AlignHCLabel
+from Ui.Utility.Widget import AlignHCLabel, DateEdit
 from ModelUtility import TimeUtility
 from Model.DbTableModel.SleepModel import SleepModel
 
@@ -35,7 +35,7 @@ class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
         ''' date_layout '''
         date_label = AlignHCLabel("Date:")
         date_layout.addWidget(date_label, 1)
-        self.date = QLineEdit()
+        self.date = DateEdit()
         date_layout.addWidget(self.date, 3)
         date_layout.addStretch(1)
 
@@ -57,7 +57,7 @@ class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
         self.reset_values()
 
     def reset_values(self):
-        self.date.setText(str(QDate.currentDate().toPyDate()))
+        self.date.setDate(QDate.currentDate())
         self.start_hour.setValue(1)
         self.start_minute.setValue(0)
         self.end_hour.setValue(13)
@@ -65,7 +65,7 @@ class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
         self.message_box.clear()
 
     def add(self):
-        date = datetime.datetime.strptime(self.date.text(), "%Y-%m-%d").date()
+        date = self.date.get_date()
         delta_start = datetime.timedelta(hours=self.start_hour.value(), minutes=self.start_minute.value())
         delta_end = datetime.timedelta(hours=self.end_hour.value(), minutes=self.end_minute.value())
 

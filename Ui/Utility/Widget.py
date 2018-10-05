@@ -97,3 +97,20 @@ class HBoxMenu(QWidget):
             button = QToolButton()
             button.setDefaultAction(self.actions[name])
             yield button
+
+
+class DateEdit(QDateEdit):
+    FORMAT = "yyyy-MM-dd"
+
+    def __init__(self, *args):
+        super(DateEdit, self).__init__(*args, displayFormat=DateEdit.FORMAT, calendarPopup=True)
+
+    def get_date(self):
+        return self.date().toPyDate()
+
+    def to_str(self):
+        return self.date().toString(DateEdit.FORMAT)
+
+    def setDate(self, *args):
+        super(DateEdit, self).setDate(*args)
+        self.setCurrentSectionIndex(2)
