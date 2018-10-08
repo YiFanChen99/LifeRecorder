@@ -12,6 +12,14 @@ class SleepModel(SimpleModel):
     def get_accessor(cls):
         return Sleep
 
+    @classmethod
+    def get_column_names(cls):
+        """
+        >>> SleepModel.get_column_names()
+        ['id', 'start', 'end']
+        """
+        return super().get_column_names()
+
     @staticmethod
     def _create_with_feedback(start, end):
         date_belonged = SleepModel.get_date_belonged(end)
@@ -54,6 +62,14 @@ class SleepDateViewModel(SimpleModel):
     def get_accessor(cls):
         return SleepDateView
 
+    @classmethod
+    def get_column_names(cls):
+        """
+        >>> SleepDateViewModel.get_column_names()
+        ['id', 'date', 'duration', 'count']
+        """
+        return super().get_column_names()
+
     @staticmethod
     def get_duration(date):
         try:
@@ -64,4 +80,5 @@ class SleepDateViewModel(SimpleModel):
 
 
 if __name__ == "__main__":
-    pass
+    import doctest
+    doctest.testmod(report=True)

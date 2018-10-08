@@ -9,6 +9,10 @@ from ModelUtility.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation
 class RecordGroupModel(BaseModel):
     @classmethod
     def get_column_names(cls):
+        """
+        >>> RecordGroupModel.get_column_names()
+        ['id', 'description', 'alias', 'children']
+        """
         names = RecordGroup.get_column_names()
         names.append('children')
         return names
@@ -36,6 +40,14 @@ class BasicRecordModel(SimpleModel):
     @classmethod
     def get_accessor(cls):
         return BasicRecord
+
+    @classmethod
+    def get_column_names(cls):
+        """
+        >>> BasicRecordModel.get_column_names()
+        ['id', 'date_id', 'group_id']
+        """
+        return super().get_column_names()
 
     @staticmethod
     def create(date, group_id):
@@ -69,6 +81,14 @@ class ExtraRecordModel(SimpleModel):
     def get_accessor(cls):
         return ExtraRecord
 
+    @classmethod
+    def get_column_names(cls):
+        """
+        >>> ExtraRecordModel.get_column_names()
+        ['id', 'basic_id', 'key', 'value']
+        """
+        return super().get_column_names()
+
     @staticmethod
     def create(basic_id, key, value):
         try:
@@ -90,4 +110,5 @@ class RawRecordModel(BaseModel):
 
 
 if __name__ == "__main__":
-    pass
+    import doctest
+    doctest.testmod(report=True)
