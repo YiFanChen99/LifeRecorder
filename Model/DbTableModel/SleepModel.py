@@ -20,6 +20,13 @@ class SleepModel(SimpleModel):
         """
         return super().get_column_names()
 
+    @classmethod
+    def get_record_value(cls, record, attr):
+        if attr == 'duration':
+            return record.end - record.start
+        else:  # default
+            return super().get_record_value(record, attr)
+
     @staticmethod
     def _create_with_feedback(start, end):
         date_belonged = SleepModel.get_date_belonged(end)

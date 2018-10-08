@@ -12,6 +12,10 @@ class BaseModel(object):
     def get_data(cls):
         raise NotImplementedError()
 
+    @classmethod
+    def get_record_value(cls, record, attr):
+        return getattr(record, attr)
+
 
 class SimpleModel(BaseModel):
     @classmethod

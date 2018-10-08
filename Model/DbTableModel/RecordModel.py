@@ -21,6 +21,13 @@ class RecordGroupModel(BaseModel):
     def get_data(cls):
         return list(RecordGroup.select().prefetch(GroupRelation))
 
+    @classmethod
+    def get_record_value(cls, record, attr):
+        if attr == 'children':
+            return ", ".join([relation.child.description for relation in record.parent])
+        else:  # default
+            return super().get_record_value(record, attr)
+
     @staticmethod
     def get_id_description_map():
         return dict((group.id, group.description) for group in RecordGroup.select())
@@ -34,6 +41,15 @@ class GroupRelationModel(BaseModel):
     @classmethod
     def get_data(cls):
         return list(GroupRelation.select().prefetch(RecordGroup))
+
+    @classmethod
+    def get_record_value(cls, record, attr):
+        if attr == 'parent':
+            return record.parent.description
+        elif attr == 'child':
+            return record.child.description
+        else:  # default
+            return super().get_record_value(record, attr)
 
 
 class BasicRecordModel(SimpleModel):
@@ -107,6 +123,17 @@ class RawRecordModel(BaseModel):
     @classmethod
     def get_data(cls):
         return list(BasicRecord.select().prefetch())
+
+    @classmethod
+    def get_record_value(cls, record, attr):
+        if attr == 'date':
+            return record.date_id.date
+        elif attr == 'group':
+            return record.group_id.description
+        elif attr == 'extra':
+            return ", ".join(["<{0}: {1}>".format(extra.key, extra.value) for extra in record.extrarecord])
+        else:  # default
+            return super().get_record_value(record, attr)
 
 
 if __name__ == "__main__":
