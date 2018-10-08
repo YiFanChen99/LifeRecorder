@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from Model.DbTableModel.BaseModel import BaseModel, SimpleModel
-from ModelUtility import Utility
-from ModelUtility.DataAccessor.DbTableAccessor import atomic, DoesNotExist
-from ModelUtility.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation, BasicRecord, ExtraRecord
+from Model import Utility
+from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
+from Model.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation, BasicRecord, ExtraRecord
 
 
 class RecordGroupModel(BaseModel):

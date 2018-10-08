@@ -8,7 +8,7 @@ from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu
 from Ui.Utility.Window import *
 from Model.TableViewModel import FilterModel
-from ModelUtility.DataAccessor.Configure import config
+from Model.DataAccessor.Configure import config
 
 
 class MainWindow(BaseMainWindow):

@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from ModelUtility.DataAccessor.JsonAccessor.JsonAccessor import load_json, save_json
+from Model.DataAccessor.JsonAccessor.JsonAccessor import load_json, save_json
 
 
 class Configure(object):

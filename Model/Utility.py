@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from ModelUtility.DataAccessor.DbTableAccessor import Timeline
+from Model.DataAccessor.DbTableAccessor import Timeline
 
 
 def init_timeline_on_date(date):

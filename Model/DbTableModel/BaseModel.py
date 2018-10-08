@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from ModelUtility.DataAccessor.DbTableAccessor import IntegrityError
+from Model.DataAccessor.DbTableAccessor import IntegrityError
 
 
 class BaseModel(object):

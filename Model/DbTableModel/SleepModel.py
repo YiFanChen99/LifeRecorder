@@ -3,8 +3,8 @@
 import datetime
 
 from Model.DbTableModel.BaseModel import SimpleModel
-from ModelUtility import Utility, TimeUtility
-from ModelUtility.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist
+from Model import TimeUtility, Utility
+from Model.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist
 
 
 class SleepModel(SimpleModel):

@@ -3,8 +3,8 @@ from peewee import *
 import datetime
 import unittest
 
-from ModelUtility.DataAccessor.DbAccessor.DbOrmAccessor import db, BaseModel
-from ModelUtility.DataAccessor.Configure import config
+from Model.DataAccessor.DbAccessor.DbOrmAccessor import db, BaseModel
+from Model.DataAccessor.Configure import config
 
 
 def atomic():

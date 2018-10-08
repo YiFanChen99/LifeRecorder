@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from Model.DbTableModel.BaseModel import BaseModel
-from ModelUtility import Utility
-from ModelUtility.DataAccessor.DbTableAccessor import Timeline, Flesh, DoesNotExist, fn, JOIN
+from Model import Utility
+from Model.DataAccessor.DbTableAccessor import Timeline, Flesh, DoesNotExist, fn, JOIN
 
 
 class FleshModel(BaseModel):

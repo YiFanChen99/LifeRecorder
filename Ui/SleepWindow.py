@@ -6,7 +6,7 @@ from PyQt5.QtCore import QDate
 
 from Ui.Utility.Window import *
 from Ui.Utility.Widget import AlignHCLabel, DateEdit
-from ModelUtility import TimeUtility
+from Model import TimeUtility
 from Model.DbTableModel.SleepModel import SleepModel
 
 
