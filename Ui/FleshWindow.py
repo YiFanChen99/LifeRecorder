@@ -9,39 +9,38 @@ from Ui.Utility.Widget import DateEdit
 from Model.DbTableModel.FleshModel import FleshModel
 
 
-class FleshAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
+class FleshAdderWindow(SimpleAdderWindow):
     def __init__(self, parent=None):
-        super(FleshAdderWindow, self).__init__(parent)
+        super().__init__(parent)
 
         self.resize(250, 150)
         self.setWindowTitle("Flesh Adder")
 
+    def _create_main_panel(self):
+        return FleshAdderPanel(self)
+
+
+class FleshAdderPanel(QWidget):
+    def __init__(self, owner):
+        super().__init__()
+        self.owner = owner
+        self._init_layout()
+
     def _init_layout(self):
-        self._init_input_layout()
-        self._init_message_box()
-        self._init_footer()
+        layout = QFormLayout()
+        self.setLayout(layout)
 
-    def _init_input_layout(self):
-        self.input_layout = QFormLayout()
-        input_layout = self.input_layout
-        self.central_layout.addLayout(input_layout)
-
-        input_layout.setSpacing(10)
+        layout.setSpacing(10)
 
         self.date_field = DateEdit()
-        input_layout.addRow("Date:", self.date_field)
+        layout.addRow("Date:", self.date_field)
         self.count_field = QLineEdit()
-        input_layout.addRow("Count:", self.count_field)
-
-    def show(self):
-        super(FleshAdderWindow, self).show()
-        self.reset_values()
+        layout.addRow("Count:", self.count_field)
 
     def reset_values(self):
         self.date_field.setDate(QDate.currentDate())
         self.count_field.setText("1.0")
         self.count_field.setValidator(QDoubleValidator(0, 10, 1, notation=QDoubleValidator.StandardNotation))
-        self.message_box.clear()
 
     def add(self):
         date = self.date_field.get_date()
@@ -49,9 +48,9 @@ class FleshAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
 
         try:
             count_after = FleshModel.add(date, count)
-            self.message_box.setText("{0}:  +{1}  -->  {2}".format(date, count, count_after))
+            self.owner.message_box.setText("{0}:  +{1}  -->  {2}".format(date, count, count_after))
         except ValueError as ex:
-            self.message_box.setText("Failed. (ValueError: %s)" % str(ex))
+            self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
 
 
 if __name__ == "__main__":

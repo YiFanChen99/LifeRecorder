@@ -23,7 +23,7 @@ class MainWindow(BaseMainWindow):
     def _init_layout(self):
         self._init_menu()
         self._init_adder()
-        self._init_table_view()
+        self._init_main_panel()
         self._init_footer()
 
         self.main_menu.trigger_default()
@@ -58,18 +58,8 @@ class MainWindow(BaseMainWindow):
         flesh_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         flesh_btn.clicked.connect(FleshAdderWindow(self).show)
 
-    def _init_table_view(self):
-        self.table_view = QTableView()
-        table_view = self.table_view
-        self.central_layout.addWidget(table_view)
-
-        self.table_model = FilterModel()
-        table_view.setModel(self.table_model)
-        table_view.resizeColumnsToContents()
-        table_view.setSortingEnabled(True)
-        table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
-        table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        table_view.setColumnHidden(0, True)
+    def _create_main_panel(self):
+        return MainPanel(self)
 
     def _init_footer(self):
         self.add_h_line()
@@ -87,6 +77,32 @@ class MainWindow(BaseMainWindow):
 
     def reject(self):
         self.close()
+
+
+class MainPanel(QWidget):
+    def __init__(self, owner):
+        super().__init__()
+        self.owner = owner
+        self._init_layout()
+
+    def _init_layout(self):
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        self._init_table_view()
+
+    def _init_table_view(self):
+        self.table_view = QTableView()
+        table_view = self.table_view
+        self.layout().addWidget(table_view)
+
+        self.table_model = FilterModel()
+        table_view.setModel(self.table_model)
+        table_view.resizeColumnsToContents()
+        table_view.setSortingEnabled(True)
+        table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        table_view.setColumnHidden(0, True)
 
 
 if __name__ == "__main__":

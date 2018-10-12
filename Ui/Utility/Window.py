@@ -19,6 +19,13 @@ class BaseMainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     def _init_layout(self):
+        self._init_main_panel()
+
+    def _init_main_panel(self):
+        self.main_panel = self._create_main_panel()
+        self.central_layout.addWidget(self.main_panel)
+
+    def _create_main_panel(self):
         raise NotImplementedError()
 
     @property
@@ -69,3 +76,24 @@ class BaseAdderWindow(_BaseExtendedMainWindow):
 
     def add(self):
         raise NotImplementedError()
+
+
+class SimpleAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
+    def _init_layout(self):
+        super()._init_layout()
+        self._init_message_box()
+        self._init_footer()
+
+    def _create_main_panel(self):
+        raise NotImplementedError()
+
+    def reset_values(self):
+        self.main_panel.reset_values()
+        self.message_box.clear()
+
+    def add(self):
+        self.main_panel.add()
+
+    def show(self):
+        super().show()
+        self.reset_values()

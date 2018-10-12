@@ -10,27 +10,31 @@ from Model import TimeUtility
 from Model.DbTableModel.SleepModel import SleepModel
 
 
-class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
+class SleepAdderWindow(SimpleAdderWindow):
     def __init__(self, parent=None):
-        super(SleepAdderWindow, self).__init__(parent)
+        super().__init__(parent)
 
         self.resize(400, 150)
         self.setWindowTitle("Sleep Adder")
 
-    def _init_layout(self):
-        self._init_input_layout()
-        self._init_message_box()
-        self._init_footer()
+    def _create_main_panel(self):
+        return SleepAdderPanel(self)
 
-    def _init_input_layout(self):
-        self.input_layout = QVBoxLayout()
-        input_layout = self.input_layout
-        self.central_layout.addLayout(input_layout)
+
+class SleepAdderPanel(QWidget):
+    def __init__(self, owner):
+        super().__init__()
+        self.owner = owner
+        self._init_layout()
+
+    def _init_layout(self):
+        layout = QVBoxLayout()
+        self.setLayout(layout)
 
         date_layout = QHBoxLayout()
         time_layout = QHBoxLayout()
-        input_layout.addLayout(date_layout)
-        input_layout.addLayout(time_layout)
+        layout.addLayout(date_layout)
+        layout.addLayout(time_layout)
 
         ''' date_layout '''
         date_label = AlignHCLabel("Date:")
@@ -52,17 +56,12 @@ class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
         self.end_minute = QSpinBox()
         time_layout.addWidget(self.end_minute)
 
-    def show(self):
-        super(SleepAdderWindow, self).show()
-        self.reset_values()
-
     def reset_values(self):
         self.date.setDate(QDate.currentDate())
         self.start_hour.setValue(1)
         self.start_minute.setValue(0)
         self.end_hour.setValue(13)
         self.end_minute.setValue(30)
-        self.message_box.clear()
 
     def add(self):
         date = self.date.get_date()
@@ -71,11 +70,11 @@ class SleepAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
 
         try:
             feedback = SleepModel.create_by_date(date, delta_start, delta_end)
-            self.message_box.setText("{0}:  +{1}  -->  {2}".format(
+            self.owner.message_box.setText("{0}:  +{1}  -->  {2}".format(
                 feedback['date'], TimeUtility.str_timedelta(feedback['growth']),
                 TimeUtility.str_timedelta(feedback['after'])))
         except ValueError as ex:
-            self.message_box.setText("Failed. (ValueError: %s)" % str(ex))
+            self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
 
 
 if __name__ == "__main__":

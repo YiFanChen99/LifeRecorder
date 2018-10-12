@@ -8,27 +8,31 @@ from Ui.Utility.Widget import DateEdit, MapComboBox
 from Model.DbTableModel.RecordModel import RecordGroupModel, BasicRecordModel, ExtraRecordModel
 
 
-class RecordAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
+class RecordAdderWindow(SimpleAdderWindow):
     def __init__(self, parent=None):
         super(RecordAdderWindow, self).__init__(parent)
 
         self.resize(250, 150)
         self.setWindowTitle("Record Adder")
 
-    def _init_layout(self):
-        self._init_input_layout()
-        self._init_message_box()
-        self._init_footer()
+    def _create_main_panel(self):
+        return RecordAdderPanel(self)
 
-    def _init_input_layout(self):
-        self.input_layout = QVBoxLayout()
-        input_layout = self.input_layout
-        self.central_layout.addLayout(input_layout)
+
+class RecordAdderPanel(QWidget):
+    def __init__(self, owner):
+        super().__init__()
+        self.owner = owner
+        self._init_layout()
+
+    def _init_layout(self):
+        layout = QVBoxLayout()
+        self.setLayout(layout)
 
         ''' Basic record '''
         form = QFormLayout()
         form.setSpacing(10)
-        self.input_layout.addLayout(form)
+        layout.addLayout(form)
 
         self.date = DateEdit()
         form.addRow("Date:", self.date)
@@ -37,17 +41,12 @@ class RecordAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
 
         ''' Extra record '''
         self.extra = ExtraRecordList(self)
-        input_layout.addWidget(self.extra)
-
-    def show(self):
-        super(RecordAdderWindow, self).show()
-        self.reset_values()
+        layout.addWidget(self.extra)
 
     def reset_values(self):
         self.date.setDate(QDate.currentDate())
         self.group.setCurrentIndex(2)  # 休閒娛樂
         self.extra.reset_values()
-        self.message_box.clear()
 
     def reset_values_partially(self):
         self.group.setCurrentIndex(2)  # 休閒娛樂
@@ -61,9 +60,9 @@ class RecordAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
         try:
             BasicRecordModel.create_with_extras(date, group_id, extras)
         except ValueError as ex:
-            self.message_box.setText("Failed. (ValueError: %s)" % str(ex))
+            self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
         else:
-            self.message_box.setText("{0}, {1}:  +1  -->  {2}".format(
+            self.owner.message_box.setText("{0}, {1}:  +1  -->  {2}".format(
                 date, self.group.currentText(), BasicRecordModel.get_count(date, group_id)))
             self.reset_values_partially()
 

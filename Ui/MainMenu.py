@@ -87,4 +87,4 @@ class MainMenu(QWidget):
             return None
 
     def _changing_source_model(self, source_model):
-        self.owner.table_model.setSourceModel(source_model)
+        self.owner.main_panel.table_model.setSourceModel(source_model)
