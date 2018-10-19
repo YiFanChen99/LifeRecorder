@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from Model.DbTableModel.BaseModel import SimpleModel
+from Model.DbTableModel.BaseModel import BaseModel, SimpleModel
 from Model import TimeUtility, Utility
-from Model.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist
+from Model.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist, fn
 
 
 class SleepModel(SimpleModel):
@@ -84,6 +84,69 @@ class SleepDateViewModel(SimpleModel):
             return datetime.timedelta(hours=duration.hour, minutes=duration.minute)
         except DoesNotExist:
             return datetime.timedelta()
+
+
+class SleepDurationModel(BaseModel):
+    @classmethod
+    def get_column_names(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def get_data(cls):
+        return list(SleepDateView.select(*cls._get_select_columns()).group_by(*cls._get_select_group_condition()))
+
+    @classmethod
+    def _get_select_columns(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        raise NotImplementedError
+
+
+class SleepDayModel(SleepDurationModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'date', 'duration', 'count']
+
+    @classmethod
+    def _get_select_columns(cls):
+        return SleepDateView.id, SleepDateView.date, SleepDateView.duration, SleepDateView.count
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        return SleepDateView.date,
+
+
+class SleepWeekModel(SleepDurationModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'week', 'duration', 'min']
+
+    @classmethod
+    def _get_select_columns(cls):
+        return SleepDateView.id, fn.DATE(fn.DATE(SleepDateView.date, "weekday 0"), "-6 days").alias('week'), \
+               fn.STRFTIME("%H:%M", fn.AVG(fn.STRFTIME("%s", SleepDateView.duration)), 'unixepoch').alias('duration'), \
+               fn.STRFTIME("%H:%M", fn.MIN(fn.STRFTIME("%s", SleepDateView.duration)), 'unixepoch').alias('min')
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        return fn.STRFTIME("%W", SleepDateView.date),
+
+
+class SleepMonthModel(SleepDurationModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'month', 'duration']
+
+    @classmethod
+    def _get_select_columns(cls):
+        return SleepDateView.id, fn.DATE(SleepDateView.date, "start of month").alias('month'), \
+               fn.STRFTIME("%H:%M", fn.AVG(fn.STRFTIME("%s", SleepDateView.duration)), 'unixepoch').alias('duration')
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        return fn.STRFTIME("%m", SleepDateView.date),
 
 
 if __name__ == "__main__":

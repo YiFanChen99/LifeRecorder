@@ -38,5 +38,68 @@ class FleshModel(BaseModel):
             return 0
 
 
+class FleshDurationModel(BaseModel):
+    @classmethod
+    def get_column_names(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def get_data(cls):
+        return list(Timeline.select(*cls._get_select_columns()).join(
+            Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date)).group_by(*cls._get_select_group_condition()))
+
+    @classmethod
+    def _get_select_columns(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        raise NotImplementedError
+
+
+class FleshDayModel(FleshDurationModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'date', 'count']
+
+    @classmethod
+    def _get_select_columns(cls):
+        return Timeline.id, Timeline.date, fn.SUM(Flesh.count).alias('count')
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        return Timeline.date,
+
+
+class FleshWeekModel(FleshDurationModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'week', 'count']
+
+    @classmethod
+    def _get_select_columns(cls):
+        return Timeline.id, fn.DATE(fn.DATE(Timeline.date, "weekday 0"), "-6 days").alias('week'), \
+               fn.SUM(Flesh.count).alias('count')
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        return fn.STRFTIME("%W", Timeline.date),
+
+
+class FleshMonthModel(FleshDurationModel):
+    @classmethod
+    def get_column_names(cls):
+        return ['id', 'month', 'count']
+
+    @classmethod
+    def _get_select_columns(cls):
+        return Timeline.id, fn.DATE(Timeline.date, "start of month").alias('month'), \
+               fn.SUM(Flesh.count).alias('count')
+
+    @classmethod
+    def _get_select_group_condition(cls):
+        return fn.STRFTIME("%m", Timeline.date),
+
+
 if __name__ == "__main__":
     pass
