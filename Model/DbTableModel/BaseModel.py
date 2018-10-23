@@ -7,36 +7,44 @@ from Model.DataAccessor.DbTableAccessor import IntegrityError, fn
 
 
 class BaseModel(object):
+    ACCESSOR = None
+
     @classmethod
     def get_column_names(cls):
+        """
+        Can easily be implemented with cls._default_columns().
+        Should add doctest for readibility.
+        """
         raise NotImplementedError()
 
     @classmethod
     def get_data(cls):
-        raise NotImplementedError()
+        return cls._select()
 
     @classmethod
     def get_record_value(cls, record, attr):
         return getattr(record, attr)
 
-
-class SimpleModel(BaseModel):
     @classmethod
-    def get_accessor(cls):
-        raise NotImplementedError()
+    def _select(cls, *args):
+        if not cls.ACCESSOR:
+            raise NotImplementedError
 
-    @classmethod
-    def get_column_names(cls):
-        return cls.get_accessor().get_column_names()
+        return cls.ACCESSOR.select(*args)
 
     @classmethod
-    def get_data(cls):
-        return cls.get_accessor().select()
+    def _default_columns(cls):
+        if cls.ACCESSOR:
+            return list(cls.ACCESSOR.get_column_names())
+        raise KeyError('There is no ACCESSOR.')
 
     @classmethod
     def create(cls, **kwargs):
+        if not cls.ACCESSOR:
+            raise NotImplementedError
+
         try:
-            cls.get_accessor().create(**kwargs)
+            cls.ACCESSOR.create(**kwargs)
         except IntegrityError as ex:
             raise ValueError("IntegrityError") from ex
 
@@ -47,8 +55,18 @@ class DurationType(Enum):
     MONTH = 'month'
 
 
-class DurationModel(object):
+class DurationModel(BaseModel):
     ACCESSOR = None
+
+    @classmethod
+    def get_column_names(cls, duration=DurationType.DAY):
+        return list(cls._get_columns(duration).keys())
+
+    @classmethod
+    def get_data(cls, duration=DurationType.DAY):
+        return cls._select(
+            *cls._get_select_columns(duration)
+        ).group_by(*cls._get_select_group_conditions(duration))
 
     @classmethod
     def _get_columns(cls, duration):
@@ -58,11 +76,14 @@ class DurationModel(object):
             raise NotImplementedError
 
     @classmethod
-    def _select(cls, *args):
-        if not cls.ACCESSOR:
-            raise NotImplementedError
+    def _default_columns(cls):
+        if cls.ACCESSOR:
+            return OrderedDict((name, getattr(cls.ACCESSOR, name)) for name in cls.ACCESSOR.get_column_names())
+        raise KeyError('There is no ACCESSOR.')
 
-        return cls.ACCESSOR.select(*args)
+    @classmethod
+    def _get_select_columns(cls, duration):
+        return list(cls._get_columns(duration).values())
 
     @classmethod
     def _get_select_group_conditions(cls, duration):
@@ -77,30 +98,6 @@ class DurationModel(object):
             return fn.STRFTIME("%m", cls.ACCESSOR.date),
         else:
             raise KeyError
-
-    @classmethod
-    def _default_columns(cls):
-        if cls.ACCESSOR:
-            return OrderedDict((name, getattr(cls.ACCESSOR, name)) for name in cls.ACCESSOR.get_column_names())
-        raise KeyError('There is no ACCESSOR.')
-
-    @classmethod
-    def get_column_names(cls, duration=DurationType.DAY):
-        return list(cls._get_columns(duration).keys())
-
-    @classmethod
-    def get_data(cls, duration=DurationType.DAY):
-        return cls._select(
-            *cls._get_select_columns(duration)
-        ).group_by(*cls._get_select_group_conditions(duration))
-
-    @classmethod
-    def _get_select_columns(cls, duration):
-        return list(cls._get_columns(duration).values())
-
-    @classmethod
-    def get_record_value(cls, record, attr):
-        return getattr(record, attr)
 
 
 class Func(object):

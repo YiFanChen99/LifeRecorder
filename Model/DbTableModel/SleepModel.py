@@ -3,7 +3,7 @@
 import datetime
 from collections import OrderedDict
 
-from Model.DbTableModel.BaseModel import SimpleModel, DurationModel, DurationType, Func
+from Model.DbTableModel.BaseModel import BaseModel, DurationModel, DurationType, Func
 from Model import TimeUtility, Utility
 from Model.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist, fn
 
@@ -54,10 +54,8 @@ class SleepUtility(object):
             return datetime.timedelta()
 
 
-class SleepModel(SimpleModel):
-    @classmethod
-    def get_accessor(cls):
-        return Sleep
+class SleepModel(BaseModel):
+    ACCESSOR = Sleep
 
     @classmethod
     def get_column_names(cls):
@@ -65,7 +63,7 @@ class SleepModel(SimpleModel):
         >>> SleepModel.get_column_names()
         ['id', 'start', 'end']
         """
-        return super().get_column_names()
+        return super()._default_columns()
 
     @classmethod
     def get_record_value(cls, record, attr):

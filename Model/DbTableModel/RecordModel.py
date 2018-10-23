@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from Model.DbTableModel.BaseModel import BaseModel, SimpleModel
+from Model.DbTableModel.BaseModel import BaseModel
 from Model import Utility
 from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
 from Model.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation, BasicRecord, ExtraRecord
@@ -52,10 +52,8 @@ class GroupRelationModel(BaseModel):
             return super().get_record_value(record, attr)
 
 
-class BasicRecordModel(SimpleModel):
-    @classmethod
-    def get_accessor(cls):
-        return BasicRecord
+class BasicRecordModel(BaseModel):
+    ACCESSOR = BasicRecord
 
     @classmethod
     def get_column_names(cls):
@@ -63,7 +61,7 @@ class BasicRecordModel(SimpleModel):
         >>> BasicRecordModel.get_column_names()
         ['id', 'date_id', 'group_id']
         """
-        return super().get_column_names()
+        return super()._default_columns()
 
     @staticmethod
     def create(date, group_id):
@@ -90,12 +88,9 @@ class BasicRecordModel(SimpleModel):
             return 0
 
 
-class ExtraRecordModel(SimpleModel):
+class ExtraRecordModel(BaseModel):
+    ACCESSOR = ExtraRecord
     KEYS = ['description', 'magnitude', 'scale']
-
-    @classmethod
-    def get_accessor(cls):
-        return ExtraRecord
 
     @classmethod
     def get_column_names(cls):
@@ -103,7 +98,7 @@ class ExtraRecordModel(SimpleModel):
         >>> ExtraRecordModel.get_column_names()
         ['id', 'basic_id', 'key', 'value']
         """
-        return super().get_column_names()
+        return super()._default_columns()
 
     @staticmethod
     def create(basic_id, key, value):
