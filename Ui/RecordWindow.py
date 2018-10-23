@@ -5,7 +5,7 @@ from PyQt5.QtCore import QDate
 
 from Ui.Utility.Window import *
 from Ui.Utility.Widget import DateEdit, MapComboBox
-from Model.DbTableModel.RecordModel import RecordGroupModel, BasicRecordModel, ExtraRecordModel
+from Model.DbTableModel.RecordModel import RecordUtility
 
 
 class RecordAdderWindow(SimpleAdderWindow):
@@ -36,7 +36,7 @@ class RecordAdderPanel(QWidget):
 
         self.date = DateEdit()
         form.addRow("Date:", self.date)
-        self.group = MapComboBox(RecordGroupModel.get_id_description_map())
+        self.group = MapComboBox(RecordUtility.Group.get_id_description_map())
         form.addRow("Group:", self.group)
 
         ''' Extra record '''
@@ -58,12 +58,12 @@ class RecordAdderPanel(QWidget):
         extras = self.extra.get_values()
 
         try:
-            BasicRecordModel.create_with_extras(date, group_id, extras)
+            RecordUtility.Basic.create_with_extras(date, group_id, extras)
         except ValueError as ex:
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
         else:
             self.owner.message_box.setText("{0}, {1}:  +1  -->  {2}".format(
-                date, self.group.currentText(), BasicRecordModel.get_count(date, group_id)))
+                date, self.group.currentText(), RecordUtility.Basic.get_count(date, group_id)))
             self.reset_values_partially()
 
 
@@ -100,7 +100,7 @@ class ExtraRecordList(QWidget):
         self.field_layout.addLayout(layout)
 
         key_field = QComboBox()
-        key_field.addItems(ExtraRecordModel.KEYS)
+        key_field.addItems(RecordUtility.Extra.KEYS)
         value_field = QLineEdit()
 
         fields = (layout, key_field, value_field)
