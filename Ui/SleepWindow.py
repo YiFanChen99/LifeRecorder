@@ -7,7 +7,7 @@ from PyQt5.QtCore import QDate
 from Ui.Utility.Window import *
 from Ui.Utility.Widget import AlignHCLabel, DateEdit
 from Model import TimeUtility
-from Model.DbTableModel.SleepModel import SleepModel
+from Model.DbTableModel.SleepModel import SleepUtility
 
 
 class SleepAdderWindow(SimpleAdderWindow):
@@ -69,7 +69,7 @@ class SleepAdderPanel(QWidget):
         delta_end = datetime.timedelta(hours=self.end_hour.value(), minutes=self.end_minute.value())
 
         try:
-            feedback = SleepModel.create_by_date(date, delta_start, delta_end)
+            feedback = SleepUtility.create_by_date(date, delta_start, delta_end)
             self.owner.message_box.setText("{0}:  +{1}  -->  {2}".format(
                 feedback['date'], TimeUtility.str_timedelta(feedback['growth']),
                 TimeUtility.str_timedelta(feedback['after'])))

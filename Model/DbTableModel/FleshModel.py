@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from Model.DbTableModel.BaseModel import BaseModel
+from collections import OrderedDict
+
+from Model.DbTableModel.BaseModel import DurationModel, DurationType, Func
 from Model import Utility
 from Model.DataAccessor.DbTableAccessor import Timeline, Flesh, DoesNotExist, fn, JOIN
 
 
-class FleshModel(BaseModel):
-    @classmethod
-    def get_column_names(cls):
-        return ['id', 'date', 'count']
-
-    @classmethod
-    def get_data(cls):
-        return list(Timeline.select(Timeline.id, Timeline.date, fn.SUM(Flesh.count).alias('count')).join(
-            Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date)).group_by(Timeline.date))
-
+class FleshUtility(object):
     @staticmethod
     def add(date, count):
         if count <= 0:
             raise ValueError("Count should be greater than 0.")
-        count_before = FleshModel.get_count(date)
+        count_before = FleshUtility.get_count(date)
         count_after = count_before + count
         if count_after > 2:
             raise ValueError("Count will be %d (over 2)." % count_after)
@@ -38,67 +31,37 @@ class FleshModel(BaseModel):
             return 0
 
 
-class FleshDurationModel(BaseModel):
-    @classmethod
-    def get_column_names(cls):
-        raise NotImplementedError
+class FleshDurationModel(DurationModel):
+    ACCESSOR = Timeline
 
     @classmethod
-    def get_data(cls):
-        return list(Timeline.select(*cls._get_select_columns()).join(
-            Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date)).group_by(*cls._get_select_group_condition()))
+    def _get_columns(cls, duration):
+        sum_count = fn.SUM(Flesh.count).alias('count')
+
+        if duration is DurationType.DAY:
+            return OrderedDict((
+                ('id', Timeline.id),
+                ('date', Timeline.date),
+                ('count', sum_count),
+            ))
+        elif duration is DurationType.WEEK:
+            return OrderedDict((
+                ('id', Timeline.id),
+                ('week', Func.week_start(Timeline.date).alias('week')),
+                ('count', sum_count),
+            ))
+        elif duration is DurationType.MONTH:
+            return OrderedDict((
+                ('id', Timeline.id),
+                ('month', Func.month_start(Timeline.date).alias('month')),
+                ('count', sum_count),
+            ))
+        else:
+            return super()._get_columns(duration)
 
     @classmethod
-    def _get_select_columns(cls):
-        raise NotImplementedError
-
-    @classmethod
-    def _get_select_group_condition(cls):
-        raise NotImplementedError
-
-
-class FleshDayModel(FleshDurationModel):
-    @classmethod
-    def get_column_names(cls):
-        return ['id', 'date', 'count']
-
-    @classmethod
-    def _get_select_columns(cls):
-        return Timeline.id, Timeline.date, fn.SUM(Flesh.count).alias('count')
-
-    @classmethod
-    def _get_select_group_condition(cls):
-        return Timeline.date,
-
-
-class FleshWeekModel(FleshDurationModel):
-    @classmethod
-    def get_column_names(cls):
-        return ['id', 'week', 'count']
-
-    @classmethod
-    def _get_select_columns(cls):
-        return Timeline.id, fn.DATE(fn.DATE(Timeline.date, "weekday 0"), "-6 days").alias('week'), \
-               fn.SUM(Flesh.count).alias('count')
-
-    @classmethod
-    def _get_select_group_condition(cls):
-        return fn.STRFTIME("%W", Timeline.date),
-
-
-class FleshMonthModel(FleshDurationModel):
-    @classmethod
-    def get_column_names(cls):
-        return ['id', 'month', 'count']
-
-    @classmethod
-    def _get_select_columns(cls):
-        return Timeline.id, fn.DATE(Timeline.date, "start of month").alias('month'), \
-               fn.SUM(Flesh.count).alias('count')
-
-    @classmethod
-    def _get_select_group_condition(cls):
-        return fn.STRFTIME("%m", Timeline.date),
+    def _select(cls, *args):
+        return Timeline.select(*args).join(Flesh, JOIN.INNER, on=(Timeline.id == Flesh.date))
 
 
 if __name__ == "__main__":

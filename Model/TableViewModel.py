@@ -3,8 +3,8 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-from Model.DbTableModel.SleepModel import SleepModel, SleepDateViewModel
-from Model.DbTableModel.FleshModel import FleshModel
+from Model.DbTableModel.SleepModel import SleepModel, SleepDurationModel
+from Model.DbTableModel.FleshModel import FleshDurationModel
 from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RawRecordModel
 
 
@@ -29,11 +29,11 @@ class PeeweeTableModel(QAbstractTableModel):
 
     @classmethod
     def get_column_headers(cls):
-        return cls.get_db_model().get_column_names()
+        return list(cls.get_db_model().get_column_names())
 
     @classmethod
     def get_all_model_data(cls):
-        return cls.get_db_model().get_data()
+        return list(cls.get_db_model().get_data())
 
     def rowCount(self, *args):
         return len(self.model_data)
@@ -63,10 +63,10 @@ class PeeweeTableModel(QAbstractTableModel):
         return str(self.get_record_value(record, attr))
 
 
-class SleepDateViewTableModel(PeeweeTableModel):
+class SleepDurationTableModel(PeeweeTableModel):
     @classmethod
     def get_db_model(cls):
-        return SleepDateViewModel
+        return SleepDurationModel
 
 
 class SleepTableModel(PeeweeTableModel):
@@ -83,7 +83,7 @@ class SleepTableModel(PeeweeTableModel):
 class FleshTableModel(PeeweeTableModel):
     @classmethod
     def get_db_model(cls):
-        return FleshModel
+        return FleshDurationModel
 
 
 class RecordGroupTableModel(PeeweeTableModel):

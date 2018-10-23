@@ -34,7 +34,7 @@ class MainMenu(QWidget):
                 'menu': {
                     'SleepDateView': {
                         'shortcut': 'Ctrl+1',
-                        'callback': lambda obj: obj._changing_source_model(SleepDateViewTableModel()),
+                        'callback': lambda obj: obj._changing_source_model(SleepDurationTableModel()),
                     },
                     'Sleep': {
                         'shortcut': 'Ctrl+2',

@@ -6,7 +6,7 @@ from PyQt5.QtGui import QDoubleValidator
 
 from Ui.Utility.Window import *
 from Ui.Utility.Widget import DateEdit
-from Model.DbTableModel.FleshModel import FleshModel
+from Model.DbTableModel.FleshModel import FleshUtility
 
 
 class FleshAdderWindow(SimpleAdderWindow):
@@ -47,7 +47,7 @@ class FleshAdderPanel(QWidget):
         count = float(self.count_field.text())
 
         try:
-            count_after = FleshModel.add(date, count)
+            count_after = FleshUtility.add(date, count)
             self.owner.message_box.setText("{0}:  +{1}  -->  {2}".format(date, count, count_after))
         except ValueError as ex:
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))

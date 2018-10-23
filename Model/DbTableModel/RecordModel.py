@@ -19,7 +19,7 @@ class RecordGroupModel(BaseModel):
 
     @classmethod
     def get_data(cls):
-        return list(RecordGroup.select().prefetch(GroupRelation))
+        return RecordGroup.select().prefetch(GroupRelation)
 
     @classmethod
     def get_record_value(cls, record, attr):
@@ -40,7 +40,7 @@ class GroupRelationModel(BaseModel):
 
     @classmethod
     def get_data(cls):
-        return list(GroupRelation.select().prefetch(RecordGroup))
+        return GroupRelation.select().prefetch(RecordGroup)
 
     @classmethod
     def get_record_value(cls, record, attr):
@@ -122,7 +122,7 @@ class RawRecordModel(BaseModel):
 
     @classmethod
     def get_data(cls):
-        return list(BasicRecord.select().prefetch())
+        return BasicRecord.select().prefetch()
 
     @classmethod
     def get_record_value(cls, record, attr):
