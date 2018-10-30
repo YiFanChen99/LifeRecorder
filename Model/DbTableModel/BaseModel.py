@@ -50,27 +50,27 @@ class BaseModel(object):
 
 
 class DurationType(Enum):
-    DAY = 'day'
-    WEEK = 'week'
-    MONTH = 'month'
+    DAILY = 'Daily'
+    WEEKLY = 'Weekly'
+    MONTHLY = 'Monthly'
 
 
 class DurationModel(BaseModel):
     ACCESSOR = None
 
     @classmethod
-    def get_column_names(cls, duration=DurationType.DAY):
+    def get_column_names(cls, duration=DurationType.DAILY):
         return list(cls._get_columns(duration).keys())
 
     @classmethod
-    def get_data(cls, duration=DurationType.DAY):
+    def get_data(cls, duration=DurationType.DAILY):
         return cls._select(
             *cls._get_select_columns(duration)
         ).group_by(*cls._get_select_group_conditions(duration))
 
     @classmethod
     def _get_columns(cls, duration):
-        if duration is DurationType.DAY:
+        if duration is DurationType.DAILY:
             return cls._default_columns()
         else:
             raise NotImplementedError
@@ -90,11 +90,11 @@ class DurationModel(BaseModel):
         if not cls.ACCESSOR:
             raise NotImplementedError
 
-        if duration is DurationType.DAY:
+        if duration is DurationType.DAILY:
             return cls.ACCESSOR.date,
-        elif duration is DurationType.WEEK:
+        elif duration is DurationType.WEEKLY:
             return fn.STRFTIME("%W", cls.ACCESSOR.date),
-        elif duration is DurationType.MONTH:
+        elif duration is DurationType.MONTHLY:
             return fn.STRFTIME("%m", cls.ACCESSOR.date),
         else:
             raise KeyError

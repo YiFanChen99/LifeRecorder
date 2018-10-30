@@ -38,19 +38,19 @@ class FleshDurationModel(DurationModel):
     def _get_columns(cls, duration):
         sum_count = fn.SUM(Flesh.count).alias('count')
 
-        if duration is DurationType.DAY:
+        if duration is DurationType.DAILY:
             return OrderedDict((
                 ('id', Timeline.id),
                 ('date', Timeline.date),
                 ('count', sum_count),
             ))
-        elif duration is DurationType.WEEK:
+        elif duration is DurationType.WEEKLY:
             return OrderedDict((
                 ('id', Timeline.id),
                 ('week', Func.week_start(Timeline.date).alias('week')),
                 ('count', sum_count),
             ))
-        elif duration is DurationType.MONTH:
+        elif duration is DurationType.MONTHLY:
             return OrderedDict((
                 ('id', Timeline.id),
                 ('month', Func.month_start(Timeline.date).alias('month')),

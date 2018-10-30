@@ -80,14 +80,14 @@ class SleepDurationModel(DurationModel):
     def _get_columns(cls, duration):
         avg_duration = Func.time(fn.AVG(fn.STRFTIME("%s", SleepDateView.duration))).alias('duration')
 
-        if duration is DurationType.WEEK:
+        if duration is DurationType.WEEKLY:
             return OrderedDict((
                 ('id', SleepDateView.id),
                 ('week', Func.week_start(SleepDateView.date).alias('week')),
                 ('duration', avg_duration),
                 ('min', Func.time(fn.MIN(fn.STRFTIME("%s", SleepDateView.duration))).alias('min')),
             ))
-        elif duration is DurationType.MONTH:
+        elif duration is DurationType.MONTHLY:
             return OrderedDict((
                 ('id', SleepDateView.id),
                 ('month', Func.month_start(SleepDateView.date).alias('month')),
