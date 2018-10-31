@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from Model.DbTableModel.BaseModel import BaseModel
 from Model import Utility
 from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
@@ -10,7 +11,7 @@ class RecordUtility(object):
     class Group:
         @staticmethod
         def get_id_description_map():
-            return dict((group.id, group.description) for group in RecordGroup.select())
+            return OrderedDict((group.id, group.description) for group in RecordGroup.select())
 
     class Basic:
         @staticmethod

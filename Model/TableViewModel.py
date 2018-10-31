@@ -8,11 +8,10 @@ from Model.DbTableModel.FleshModel import FleshDurationModel
 from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RawRecordModel
 
 
-class FilterModel(QSortFilterProxyModel):
-    def __init__(self, source=None, conditions=None):
-        super(FilterModel, self).__init__()
+class ProxyModel(QSortFilterProxyModel):
+    def __init__(self, source=None):
+        super().__init__()
         self.setSourceModel(SleepTableModel() if source is None else source)
-        self.conditions = conditions
 
 
 class PeeweeTableModel(QAbstractTableModel):

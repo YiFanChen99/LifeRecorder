@@ -7,7 +7,7 @@ from Ui.FleshWindow import FleshAdderWindow
 from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu
 from Ui.Utility.Window import *
-from Model.TableViewModel import FilterModel
+from Model.TableViewModel import ProxyModel
 from Model.DataAccessor.Configure import config
 
 
@@ -92,12 +92,13 @@ class MainPanel(QWidget):
         self._init_table_view()
 
     def _init_table_view(self):
-        self.table_view = QTableView()
-        table_view = self.table_view
+        table_view = QTableView()
+        self.table_view = table_view
         self.layout().addWidget(table_view)
 
-        self.table_model = FilterModel()
+        self.table_model = ProxyModel()
         table_view.setModel(self.table_model)
+
         table_view.resizeColumnsToContents()
         table_view.setSortingEnabled(True)
         table_view.setSelectionBehavior(QAbstractItemView.SelectRows)

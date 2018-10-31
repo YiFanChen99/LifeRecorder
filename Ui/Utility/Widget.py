@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
@@ -117,8 +118,11 @@ class DateEdit(QDateEdit):
 
 
 class MapComboBox(QComboBox):
-    def __init__(self, the_map):
-        super(MapComboBox, self).__init__()
+    def __init__(self, options):
+        """
+        options: {data: text} in dict or OrderedDict
+        """
+        super().__init__()
 
-        for key, value in the_map.items():
-            self.addItem(value, key)
+        for data, text in options.items():
+            self.addItem(text, data)
