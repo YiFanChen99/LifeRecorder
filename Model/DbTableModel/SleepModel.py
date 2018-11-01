@@ -66,11 +66,11 @@ class SleepModel(BaseModel):
         return super()._default_columns()
 
     @classmethod
-    def get_record_value(cls, record, attr):
+    def get_record_attr(cls, record, attr):
         if attr == 'duration':
             return record.end - record.start
         else:  # default
-            return super().get_record_value(record, attr)
+            return super().get_record_attr(record, attr)
 
 
 class SleepDurationModel(DurationModel):

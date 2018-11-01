@@ -22,7 +22,7 @@ class BaseModel(object):
         return cls._select()
 
     @classmethod
-    def get_record_value(cls, record, attr):
+    def get_record_attr(cls, record, attr):
         return getattr(record, attr)
 
     @classmethod

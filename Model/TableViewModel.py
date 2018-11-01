@@ -19,7 +19,7 @@ class PeeweeTableModel(QAbstractTableModel):
         super(PeeweeTableModel, self).__init__(parent)
 
         self.column_headers = self.get_column_headers()
-        self.get_record_value = self.get_db_model().get_record_value
+        self.get_record_value = self.get_db_model().get_record_attr
         self.model_data = model_data if model_data else self.get_all_model_data()
 
     @classmethod
