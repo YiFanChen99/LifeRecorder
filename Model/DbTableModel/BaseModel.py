@@ -103,7 +103,7 @@ class DurationModel(BaseModel):
 class Func(object):
     @staticmethod
     def week_start(field):
-        return fn.DATE(fn.DATE(field, "weekday 0"), "-6 days")
+        return fn.DATE(field, "weekday 0", "-6 days")
 
     @staticmethod
     def month_start(field):
