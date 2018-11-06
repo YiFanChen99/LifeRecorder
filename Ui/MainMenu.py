@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from Ui.Utility.Widget import HBoxMenu, QWidget
 from Model.TableViewModel import *
 
@@ -7,57 +9,57 @@ from Model.TableViewModel import *
 class MainMenu(QWidget):
     # noinspection PyProtectedMember
     CONFIG = {
-        'menu': {
-            'Record': {
+        'menu': OrderedDict((
+            ('Record', {
                 'callback': lambda obj: obj._changing_level_2_menu('Record'),
                 'shortcut': 'F1',
-                'menu': {
-                    'Records': {
+                'menu': OrderedDict((
+                    ('Records', dict({
                         'shortcut': 'Ctrl+1',
                         'callback': lambda obj: obj._changing_source_model(RecordTableModel()),
-                    },
-                    'RecordGroup': {
+                    })),
+                    ('RecordGroup', {
                         'shortcut': 'Ctrl+2',
                         'callback': lambda obj: obj._changing_source_model(RecordGroupTableModel()),
-                    },
-                    'GroupRelation': {
+                    }),
+                    ('GroupRelation', {
                         'shortcut': 'Ctrl+3',
                         'callback': lambda obj: obj._changing_source_model(GroupRelationTableModel()),
-                    },
-                    'NewView': {
+                    }),
+                    ('NewView', dict({
                         'callback': lambda obj: obj.owner._show_new_window(),
                         'shortcut': 'Ctrl+4',
-                    },
-                },
+                    })),
+                )),
                 'default_selection': 'Records',
-            },
-            'Sleep': {
+            }),
+            ('Sleep', {
                 'callback': lambda obj: obj._changing_level_2_menu('Sleep'),
                 'shortcut': 'F2',
-                'menu': {
-                    'SleepDateView': {
+                'menu': OrderedDict((
+                    ('SleepDateView', {
                         'shortcut': 'Ctrl+1',
                         'callback': lambda obj: obj._changing_source_model(SleepDurationTableModel()),
-                    },
-                    'Sleep': {
+                    }),
+                    ('Sleep', {
                         'shortcut': 'Ctrl+2',
                         'callback': lambda obj: obj._changing_source_model(SleepTableModel()),
-                    },
-                },
+                    }),
+                )),
                 'default_selection': 'SleepDateView',
-            },
-            'Flesh': {
+            }),
+            ('Flesh', {
                 'callback': lambda obj: obj._changing_level_2_menu('Flesh'),
                 'shortcut': 'F3',
-                'menu': {
-                    'Flesh': {
+                'menu': OrderedDict((
+                    ('Flesh', {
                         'shortcut': 'Ctrl+1',
                         'callback': lambda obj: obj._changing_source_model(FleshTableModel()),
-                    },
-                },
+                    }),
+                )),
                 'default_selection': 'Flesh',
-            },
-        },
+            }),
+        )),
         'default_selection': 'Record',
     }
 
@@ -70,24 +72,18 @@ class MainMenu(QWidget):
         for name, detail in self.CONFIG['menu'].items():
             self.level_2_menus[name] = HBoxMenu(self, detail)
             self.level_2_menus[name].hide()
+        self.last_level_2_menu = None
 
     def trigger_default(self):
-        self.level_1_menu.trigger_default()
+        self.level_1_menu.trigger()
 
     def _changing_level_2_menu(self, menu_name):
-        if self.current_level_2_menu:
-            self.current_level_2_menu.hide()
+        if self.last_level_2_menu:
+            self.last_level_2_menu.hide()
 
-        level_2_menu = self.level_2_menus[menu_name]
-        level_2_menu.show()
-        level_2_menu.trigger_default()
-
-    @property
-    def current_level_2_menu(self):
-        try:
-            return self.level_2_menus[self.level_1_menu.last_action.text()]
-        except AttributeError:
-            return None
+        self.last_level_2_menu = self.level_2_menus[menu_name]
+        self.last_level_2_menu.show()
+        self.last_level_2_menu.trigger()
 
     def _changing_source_model(self, source_model):
         self.owner.main_panel.table_model.setSourceModel(source_model)

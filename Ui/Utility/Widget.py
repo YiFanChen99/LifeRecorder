@@ -39,7 +39,7 @@ class HBoxMenu(QWidget):
                 'Sleep': {'callback': lambda obj: obj.method_sleep(), 'shortcut': 'F2'},
                 'Flesh': {'callback': lambda obj: obj.method_flesh()}
             },
-            'default_selection': 'Sleep'
+            'default_selection': 'Sleep'  # Optional
         })
         """
         super(HBoxMenu, self).__init__()
@@ -48,12 +48,23 @@ class HBoxMenu(QWidget):
         self._init_actions(config['menu'])
         self._init_layout(config['menu'])
 
-        self.last_action = None
-        self.default_selection = config['default_selection']
+        self.default_index = 0
+        if config['default_selection']:
+            self.set_default_selection(config['default_selection'])
 
-    def trigger_default(self):
-        self.last_action = None
-        self.actions[self.default_selection].trigger()
+    def trigger(self, index=-1):
+        if index == -1:
+            index = self.default_index
+
+        action = self.action_group.actions()[index]
+        action.trigger()
+
+    def set_checked(self, index=-1):
+        if index == -1:
+            index = self.default_index
+
+        action = self.action_group.actions()[index]
+        action.setChecked(True)
 
     def _init_actions(self, config):
         self.actions = {}
@@ -76,11 +87,15 @@ class HBoxMenu(QWidget):
             callback(self.owner)
             self._post_action(action)
 
+    # noinspection PyUnusedLocal, PyMethodMayBeStatic
     def _pre_action(self, action):
-        return self.last_action is not action
+        """
+        ex: return self.last_action is not action
+        """
+        return True
 
     def _post_action(self, action):
-        self.last_action = action
+        pass
 
     def _init_layout(self, config):
         layout = QHBoxLayout()
@@ -101,6 +116,21 @@ class HBoxMenu(QWidget):
             button = QToolButton()
             button.setDefaultAction(self.actions[name])
             yield button
+
+    def set_default_selection(self, selection):
+        """
+        :param selection: Allowing either str as action name or int as index.
+        """
+        if isinstance(selection, str):
+            actions = self.action_group.actions()
+            selection = [action.text() for action in actions].index(selection)
+        self._set_default_index(selection)
+
+    def _set_default_index(self, index):
+        if index >= len(self.action_group.actions()):
+            raise IndexError("Index %d out of range %d" % (index, len(self.action_group.actions())))
+
+        self.default_index = index
 
 
 class DateEdit(QDateEdit):
