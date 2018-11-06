@@ -51,6 +51,7 @@ class HBoxMenu(QWidget):
         self.default_index = 0
         if config['default_selection']:
             self.set_default_selection(config['default_selection'])
+        self.set_checked()
 
     def trigger(self, index=-1):
         if index == -1:
@@ -178,7 +179,7 @@ class DateFilterComBox(MapComboBox):
 
 
 class DurationGroup(QWidget):
-    BUTTONS = ((d_type, d_type.value) for d_type in DurationType)
+    BUTTONS = tuple((d_type, d_type.value) for d_type in DurationType)
 
     def __init__(self, callback, buttons=None, default_checked=0):
         """
