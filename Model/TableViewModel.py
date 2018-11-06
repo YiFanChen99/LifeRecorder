@@ -146,6 +146,9 @@ class FilterProxyModel(QSortFilterProxyModel):
         date = self.sourceModel().get_record_date(self.sourceModel().model_data[row])
         return self.date_started_cache <= date
 
+    def filterAcceptsColumn(self, column, model_index):
+        return column != 0
+
 
 class BaseTableModel(QAbstractTableModel):
     DB_MODEL = None

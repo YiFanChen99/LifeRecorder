@@ -61,4 +61,3 @@ class DurationTablePanel(QWidget):
         table_view.setSortingEnabled(True)
         table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        table_view.setColumnHidden(0, True)
