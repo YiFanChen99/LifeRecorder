@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from Ui.Utility.Widget import HBoxMenu, QWidget
-
 from Model.TableViewModel import *
 
 
@@ -24,6 +23,10 @@ class MainMenu(QWidget):
                     'GroupRelation': {
                         'shortcut': 'Ctrl+3',
                         'callback': lambda obj: obj._changing_source_model(GroupRelationTableModel()),
+                    },
+                    'NewView': {
+                        'callback': lambda obj: obj.owner._show_new_window(),
+                        'shortcut': 'Ctrl+4',
                     },
                 },
                 'default_selection': 'Records',

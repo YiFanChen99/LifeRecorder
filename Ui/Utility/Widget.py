@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import *
+
+from Model.DbTableModel.BaseModel import DurationType
+from Model.TableViewModel import DateFilter
 
 
 class AlignHCLabel(QLabel):
@@ -118,7 +121,7 @@ class DateEdit(QDateEdit):
 
 
 class MapComboBox(QComboBox):
-    def __init__(self, options):
+    def __init__(self, options, default_index=0):
         """
         options: {data: text} in dict or OrderedDict
         """
@@ -126,3 +129,72 @@ class MapComboBox(QComboBox):
 
         for data, text in options.items():
             self.addItem(text, data)
+        self.setCurrentIndex(default_index)
+
+
+class DateFilterComBox(MapComboBox):
+    def __init__(self, callback, default_index=3):
+        if not callable(callback):
+            raise ValueError
+
+        options = OrderedDict((enum, enum.value) for enum in DateFilter.Type)
+        super().__init__(options, default_index=default_index)
+
+        self.callback = callback
+        self.currentIndexChanged.connect(self.notify)
+
+    def notify(self):
+        self.callback(self.currentData())
+
+
+class DurationGroup(QWidget):
+    BUTTONS = ((d_type, d_type.value) for d_type in DurationType)
+
+    def __init__(self, callback, buttons=None, default_checked=0):
+        """
+        buttons: ((callback_key, display_text), )
+        """
+        if not callable(callback):
+            raise ValueError
+        if buttons is None:
+            buttons = self.BUTTONS
+
+        super().__init__()
+        self.callback = callback
+        self.default_checked = default_checked
+        self._init_layout(buttons)
+
+    def trigger(self, index):
+        action = self.group.actions()[index]
+        action.trigger()
+
+    def notify(self, key):
+        self.callback(key)
+
+    def set_checked(self, index):
+        action = self.group.actions()[index]
+        action.setChecked(True)
+
+    def _init_layout(self, buttons):
+        self.setLayout(QHBoxLayout())
+
+        self.group = QActionGroup(self)
+        self._init_action_buttons(buttons)
+        self.set_checked(self.default_checked)
+
+    def _init_action_buttons(self, buttons):
+        for key, value in buttons:
+            button = QToolButton()
+            button.setDefaultAction(self._create_action(key, value))
+            button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            button.sizeHint = lambda: QSize(75, 23)
+            self.layout().addWidget(button)
+
+    def _create_action(self, callback_key, text):
+        if not self.group:
+            raise AttributeError("ActionGroup(self.group) is None.")
+
+        action = QAction(text, self.group)
+        action.setCheckable(True)
+        action.triggered.connect(lambda: self.notify(callback_key))
+        return action

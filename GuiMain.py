@@ -5,7 +5,8 @@ import sys
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.RecordWindow import RecordAdderWindow
-from Ui.MainMenu import MainMenu
+from Ui.MainMenu import MainMenu, SleepDurationTableModel
+from Ui.Utility.TablePanel import DurationTablePanel
 from Ui.Utility.Window import *
 from Model.TableViewModel import ProxyModel
 from Model.DataAccessor.Configure import config
@@ -17,8 +18,10 @@ class MainWindow(BaseMainWindow):
 
         config_w = config['window']
         self.resize(config_w['width'], config_w['height'])
-        self.move(config_w['x_axis'], config_w['y_axis'])
+        self.move(config_w['x_axis'] - 15, config_w['y_axis'] - 15)
         self.setWindowTitle(config_w['title'])
+
+        self.new_window = MainWindowV2(self)
 
     def _init_layout(self):
         self._init_menu()
@@ -78,6 +81,9 @@ class MainWindow(BaseMainWindow):
     def reject(self):
         self.close()
 
+    def _show_new_window(self):
+        return self.new_window.show()
+
 
 class MainPanel(QWidget):
     def __init__(self, owner):
@@ -104,6 +110,19 @@ class MainPanel(QWidget):
         table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         table_view.setSelectionMode(QAbstractItemView.SingleSelection)
         table_view.setColumnHidden(0, True)
+
+
+class MainWindowV2(BaseMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        config_w = config['window']
+        self.resize(config_w['width'], config_w['height'])
+        self.move(config_w['x_axis'], config_w['y_axis'])
+        self.setWindowTitle(config_w['title'])
+
+    def _create_main_panel(self):
+        return DurationTablePanel(self, SleepDurationTableModel(), SleepAdderWindow(self).show)
 
 
 if __name__ == "__main__":
