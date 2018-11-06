@@ -6,8 +6,8 @@ from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu, SleepDurationTableModel
-from Ui.Utility.TablePanel import DurationTablePanel
 from Ui.Utility.Window import *
+from Ui.Utility.TablePanel import DurationTablePanel
 from Model.TableViewModel import ProxyModel
 from Model.DataAccessor.Configure import config
 
@@ -112,14 +112,10 @@ class MainPanel(QWidget):
         table_view.setColumnHidden(0, True)
 
 
-class MainWindowV2(BaseMainWindow):
+class MainWindowV2(BaseMainWindow, BaseConfigLoader):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        config_w = config['window']
-        self.resize(config_w['width'], config_w['height'])
-        self.move(config_w['x_axis'], config_w['y_axis'])
-        self.setWindowTitle(config_w['title'])
+        self._init_window(config['window'])
 
     def _create_main_panel(self):
         return DurationTablePanel(self, SleepDurationTableModel(), SleepAdderWindow(self).show)

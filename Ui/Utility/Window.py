@@ -8,7 +8,7 @@ from Ui.Utility.Widget import HLine
 
 class BaseMainWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(BaseMainWindow, self).__init__(parent)
+        super().__init__(parent)
         self._init_central_widget()
         self._init_layout()
         self.setWindowModality(Qt.WindowModal)
@@ -76,6 +76,13 @@ class BaseAdderWindow(_BaseExtendedMainWindow):
 
     def add(self):
         raise NotImplementedError()
+
+
+class BaseConfigLoader(_BaseExtendedMainWindow):
+    def _init_window(self, config):
+        self.resize(config['width'], config['height'])
+        self.move(config['x_axis'], config['y_axis'])
+        self.setWindowTitle(config['title'])
 
 
 class SimpleAdderWindow(BaseMainWindow, BaseMessageBoxWindow, BaseAdderWindow):
