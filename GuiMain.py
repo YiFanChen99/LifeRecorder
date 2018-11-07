@@ -4,14 +4,12 @@ import sys
 from collections import OrderedDict
 from PyQt5.QtWidgets import *
 
-from Ui.SleepWindow import SleepAdderWindow
-from Ui.FleshWindow import FleshAdderWindow
 from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu
 from Ui.Utility.Window import BaseMainWindow, BaseConfigLoader
 from Ui.Utility.Widget import BaseMenuPanel, PanelChangeable
-from Ui.Utility.TablePanel import DurationTablePanel
-from Model.TableViewModel import ProxyModel, SleepDurationTableModel, FleshDurationTableModel, SleepTableModel
+from Ui.Utility.TablePanel import SleepDurationTablePanel, FleshDurationTablePanel
+from Model.TableViewModel import ProxyModel, SleepTableModel
 from Model.DataAccessor.Configure import config
 
 
@@ -159,8 +157,8 @@ class TimelinePanel(BaseMenuPanel, PanelChangeable):
 
     def _create_panels(self):
         return (
-            DurationTablePanel(self, SleepDurationTableModel(), SleepAdderWindow(self).show),
-            DurationTablePanel(self, FleshDurationTableModel(), FleshAdderWindow(self).show),
+            SleepDurationTablePanel(self),
+            FleshDurationTablePanel(self),
         )
 
 

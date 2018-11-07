@@ -206,7 +206,8 @@ class SleepTableModel(BaseRawTableModel):
 
 class BaseDurationTableModel(BaseTableModel):
     DB_MODEL = None
-    DEFAULT_DURATION = DurationType.DAILY
+    DEFAULT_DURATION = None
+    DEFAULT_DATE_FILTER = None
 
     @classmethod
     def get_column_headers(cls, duration):
@@ -232,8 +233,11 @@ class BaseDurationTableModel(BaseTableModel):
 
 class SleepDurationTableModel(BaseDurationTableModel):
     DB_MODEL = SleepDurationModel
+    DEFAULT_DURATION = DurationType.DAILY
+    DEFAULT_DATE_FILTER = DateFilter.Type.ONE_MONTH
 
 
 class FleshDurationTableModel(BaseDurationTableModel):
     DB_MODEL = FleshDurationModel
     DEFAULT_DURATION = DurationType.WEEKLY
+    DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH

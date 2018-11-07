@@ -174,6 +174,15 @@ class DateFilterComBox(MapComboBox):
         self.callback = callback
         self.currentIndexChanged.connect(self.notify)
 
+    # noinspection PyTypeChecker
+    def setCurrentIndex(self, index):
+        """
+        :param index: index or instance of DateFilter.Type
+        """
+        if isinstance(index, DateFilter.Type):
+            index = list(DateFilter.Type).index(index)
+        super().setCurrentIndex(index)
+
     def notify(self):
         self.callback(self.currentData())
 
@@ -202,8 +211,14 @@ class DurationGroup(QWidget):
     def notify(self, key):
         self.callback(key)
 
-    def set_checked(self, index):
-        action = self.group.actions()[index]
+    # noinspection PyTypeChecker
+    def set_checked(self, checked):
+        """
+        :param checked: index or instance of DurationType
+        """
+        if isinstance(checked, DurationType):
+            checked = list(DurationType).index(checked)
+        action = self.group.actions()[checked]
         action.setChecked(True)
 
     def _init_layout(self, buttons):
