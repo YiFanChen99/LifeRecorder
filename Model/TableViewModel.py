@@ -65,23 +65,6 @@ class PeeweeTableModel(QAbstractTableModel):
         return str(self.get_record_value(record, attr))
 
 
-class SleepTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return SleepModel
-
-    @classmethod
-    def get_column_headers(cls):
-        origin = super().get_column_headers()
-        return origin[:] + ['duration']
-
-
-class FleshTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return FleshDurationModel
-
-
 class RecordGroupTableModel(PeeweeTableModel):
     @classmethod
     def get_db_model(cls):
@@ -154,21 +137,24 @@ class BaseTableModel(QAbstractTableModel):
     DB_MODEL = None
 
     @classmethod
-    def get_column_headers(cls, duration):
-        return list(cls.DB_MODEL.get_column_names(duration))
+    def get_column_headers(cls, *args):
+        raise NotImplementedError
 
     @classmethod
-    def get_model_data(cls, duration):
-        return list(cls.DB_MODEL.get_data(duration))
+    def get_model_data(cls, *args):
+        raise NotImplementedError
 
-    def __init__(self, duration=DurationType.DAILY):
+    def __init__(self):
         if not self.DB_MODEL:
             raise NotImplementedError
 
         super().__init__()
         self.column_headers = None
         self.model_data = None
-        self.set_duration(duration)
+        self._init_data()
+
+    def _init_data(self):
+        raise NotImplementedError
 
     def rowCount(self, *args):
         return len(self.model_data)
@@ -197,16 +183,57 @@ class BaseTableModel(QAbstractTableModel):
         attr = self.column_headers[index]
         return self.DB_MODEL.get_record_attr(record, attr)
 
+
+class BaseRawTableModel(BaseTableModel):
+    DB_MODEL = None
+
+    @classmethod
+    def get_column_headers(cls):
+        return list(cls.DB_MODEL.get_column_names())
+
+    @classmethod
+    def get_model_data(cls):
+        return list(cls.DB_MODEL.get_data())
+
+    def _init_data(self):
+        self.column_headers = self.get_column_headers()
+        self.model_data = self.get_model_data()
+
+
+class SleepTableModel(BaseRawTableModel):
+    DB_MODEL = SleepModel
+
+
+class BaseDurationTableModel(BaseTableModel):
+    DB_MODEL = None
+    DEFAULT_DURATION = DurationType.DAILY
+
+    @classmethod
+    def get_column_headers(cls, duration):
+        return list(cls.DB_MODEL.get_column_names(duration))
+
+    @classmethod
+    def get_model_data(cls, duration):
+        return list(cls.DB_MODEL.get_data(duration))
+
+    def _init_data(self):
+        self.set_duration(duration=self.DEFAULT_DURATION)
+
+    def set_duration(self, duration):
+        self.column_headers = self.get_column_headers(duration)
+        self.model_data = self.get_model_data(duration)
+
     def get_record_date(self, record):
         """
         Assuming date will always be index 1.
         """
         return self.get_record_data(record, 1)
 
-    def set_duration(self, duration):
-        self.column_headers = self.get_column_headers(duration)
-        self.model_data = self.get_model_data(duration)
 
-
-class SleepDurationTableModel(BaseTableModel):
+class SleepDurationTableModel(BaseDurationTableModel):
     DB_MODEL = SleepDurationModel
+
+
+class FleshDurationTableModel(BaseDurationTableModel):
+    DB_MODEL = FleshDurationModel
+    DEFAULT_DURATION = DurationType.WEEKLY

@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+from collections import OrderedDict
+from PyQt5.QtWidgets import *
 
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.RecordWindow import RecordAdderWindow
-from Ui.MainMenu import MainMenu, SleepDurationTableModel
-from Ui.Utility.Window import *
+from Ui.MainMenu import MainMenu
+from Ui.Utility.Window import BaseMainWindow, BaseConfigLoader
+from Ui.Utility.Widget import BaseMenuPanel, PanelChangeable
 from Ui.Utility.TablePanel import DurationTablePanel
-from Model.TableViewModel import ProxyModel
+from Model.TableViewModel import ProxyModel, SleepDurationTableModel, FleshDurationTableModel, SleepTableModel
 from Model.DataAccessor.Configure import config
 
 
@@ -50,16 +53,6 @@ class MainWindow(BaseMainWindow):
         layout.addWidget(record_btn)
         record_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         record_btn.clicked.connect(RecordAdderWindow(self).show)
-
-        sleep_btn = QPushButton("&Sleep")
-        layout.addWidget(sleep_btn)
-        sleep_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sleep_btn.clicked.connect(SleepAdderWindow(self).show)
-
-        flesh_btn = QPushButton("&Flesh")
-        layout.addWidget(flesh_btn)
-        flesh_btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        flesh_btn.clicked.connect(FleshAdderWindow(self).show)
 
     def _create_main_panel(self):
         return MainPanel(self)
@@ -118,7 +111,88 @@ class MainWindowV2(BaseMainWindow, BaseConfigLoader):
         self._init_window(config['window'])
 
     def _create_main_panel(self):
-        return DurationTablePanel(self, SleepDurationTableModel(), SleepAdderWindow(self).show)
+        return MainPanelV2(self)
+
+
+class MainPanelV2(BaseMenuPanel, PanelChangeable):
+    MENU_CONFIG = {
+        'menu': OrderedDict((
+            ('Timeline', {
+                'callback': lambda obj: obj.change_panel(0),
+                'shortcut': 'F1',
+            }),
+            ('RawTable', {
+                'callback': lambda obj: obj.change_panel(1),
+                'shortcut': 'F2',
+            }),
+        )),
+        'default_selection': 0,
+    }
+
+    def _init_main_panel(self):
+        self._init_panels()
+
+    def _create_panels(self):
+        return (
+            TimelinePanel(self),
+            RawTablePanel(self),
+        )
+
+
+class TimelinePanel(BaseMenuPanel, PanelChangeable):
+    MENU_CONFIG = {
+        'menu': OrderedDict((
+            ('Sleep', {
+                'callback': lambda obj: obj.change_panel(0),
+                'shortcut': 'Ctrl+1',
+            }),
+            ('Flesh', {
+                'callback': lambda obj: obj.change_panel(1),
+                'shortcut': 'Ctrl+2',
+            }),
+        )),
+        'default_selection': 0,
+    }
+
+    def _init_main_panel(self):
+        self._init_panels()
+
+    def _create_panels(self):
+        return (
+            DurationTablePanel(self, SleepDurationTableModel(), SleepAdderWindow(self).show),
+            DurationTablePanel(self, FleshDurationTableModel(), FleshAdderWindow(self).show),
+        )
+
+
+class RawTablePanel(BaseMenuPanel):
+    MENU_CONFIG = {
+        'menu': OrderedDict((
+            ('Sleep', {
+                'callback': lambda obj: obj.change_source_model(SleepTableModel()),
+                'shortcut': 'Ctrl+1',
+            }),
+        )),
+        'default_selection': 0,
+    }
+
+    def _init_main_panel(self):
+        table_view = QTableView()
+        self.table_view = table_view
+        self.layout().addWidget(table_view)
+
+        self.table_model = ProxyModel()
+        table_view.setModel(self.table_model)
+
+        table_view.resizeColumnsToContents()
+        table_view.setSortingEnabled(True)
+        table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        table_view.setColumnHidden(0, True)
+
+    def change_source_model(self, source_model):
+        self.table_model.beginResetModel()
+        self.table_model.setSourceModel(source_model)
+        self.table_model.endResetModel()
 
 
 if __name__ == "__main__":

@@ -229,3 +229,54 @@ class DurationGroup(QWidget):
         action.setCheckable(True)
         action.triggered.connect(lambda: self.notify(callback_key))
         return action
+
+
+class PanelChangeable(object):
+    def __init__(self):
+        self.current_panel = None
+        super().__init__()
+
+    def _init_panels(self):
+        self.panels = tuple(self._create_panels())
+
+        for panel in self.panels:
+            self.layout().addWidget(panel)
+            panel.hide()
+
+        self.change_panel(self.menu.default_index)
+
+    def _create_panels(self):
+        raise NotImplementedError
+
+    def change_panel(self, index):
+        if self.current_panel:
+            self.current_panel.hide()
+
+        self.current_panel = self.panels[index]
+        self.current_panel.show()
+
+
+class BaseMenuPanel(QWidget):
+    MENU_CONFIG = None
+
+    def __init__(self, owner):
+        if self.MENU_CONFIG is None:
+            raise ValueError("MENU_CONFIG")
+
+        super().__init__()
+        self.owner = owner
+        self._init_layout()
+
+    def _init_layout(self):
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        self._init_menu()
+        self._init_main_panel()
+
+    def _init_menu(self):
+        self.menu = HBoxMenu(self, self.MENU_CONFIG)
+        self.layout().addWidget(self.menu)
+
+    def _init_main_panel(self):
+        raise NotImplementedError

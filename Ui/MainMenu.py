@@ -33,32 +33,6 @@ class MainMenu(QWidget):
                 )),
                 'default_selection': 'Records',
             }),
-            ('Sleep', {
-                'callback': lambda obj: obj._changing_level_2_menu('Sleep'),
-                'shortcut': 'F2',
-                'menu': OrderedDict((
-                    ('SleepDateView', {
-                        'shortcut': 'Ctrl+1',
-                        'callback': lambda obj: obj._changing_source_model(SleepDurationTableModel()),
-                    }),
-                    ('Sleep', {
-                        'shortcut': 'Ctrl+2',
-                        'callback': lambda obj: obj._changing_source_model(SleepTableModel()),
-                    }),
-                )),
-                'default_selection': 'SleepDateView',
-            }),
-            ('Flesh', {
-                'callback': lambda obj: obj._changing_level_2_menu('Flesh'),
-                'shortcut': 'F3',
-                'menu': OrderedDict((
-                    ('Flesh', {
-                        'shortcut': 'Ctrl+1',
-                        'callback': lambda obj: obj._changing_source_model(FleshTableModel()),
-                    }),
-                )),
-                'default_selection': 'Flesh',
-            }),
         )),
         'default_selection': 'Record',
     }

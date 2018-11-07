@@ -61,9 +61,10 @@ class SleepModel(BaseModel):
     def get_column_names(cls):
         """
         >>> SleepModel.get_column_names()
-        ['id', 'start', 'end']
+        ['id', 'start', 'end', 'duration']
         """
-        return super()._default_columns()
+        origin = super()._default_columns()
+        return origin[:] + ['duration']
 
     @classmethod
     def get_record_attr(cls, record, attr):
