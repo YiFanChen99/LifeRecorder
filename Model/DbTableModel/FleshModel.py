@@ -63,7 +63,8 @@ class FleshDurationModel(DurationModel):
         elif duration is DurationType.WEEKLY:
             return OrderedDict((
                 ('id', Timeline.id),
-                ('week', Func.week_start(Timeline.date).alias('week')),
+                ('monday', Func.week_start(Timeline.date).alias('monday')),
+                ('sunday', Func.week_end(Timeline.date).alias('sunday')),
                 ('count', sum_count),
             ))
         elif duration is DurationType.MONTHLY:

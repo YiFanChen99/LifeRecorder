@@ -84,7 +84,8 @@ class SleepDurationModel(DurationModel):
         if duration is DurationType.WEEKLY:
             return OrderedDict((
                 ('id', SleepDateView.id),
-                ('week', Func.week_start(SleepDateView.date).alias('week')),
+                ('monday', Func.week_start(SleepDateView.date).alias('monday')),
+                ('sunday', Func.week_end(SleepDateView.date).alias('sunday')),
                 ('duration', avg_duration),
                 ('minimum', fn.MIN(SleepDateView.duration).alias('minimum')),
             ))

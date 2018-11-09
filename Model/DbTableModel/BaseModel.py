@@ -106,6 +106,10 @@ class Func(object):
         return fn.DATE(field, "weekday 0", "-6 days")
 
     @staticmethod
+    def week_end(field):
+        return fn.DATE(field, "weekday 0")
+
+    @staticmethod
     def month_start(field):
         return fn.DATE(field, "start of month")
 
