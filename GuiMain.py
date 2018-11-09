@@ -160,16 +160,23 @@ class TimelinePanel(BaseMenuPanel, PanelChangeable):
         )
 
 
-class RawTablePanel(BaseMenuPanel):
+class RawTablePanel(BaseMenuPanel, RightClickable):
     MENU_CONFIG = {
         'menu': OrderedDict((
             ('Sleep', {
-                'callback': lambda obj: obj.change_source_model(SleepTableModel()),
+                'callback': lambda obj: obj.change_source_model(0),
                 'shortcut': 'Ctrl+1',
             }),
         )),
         'default_selection': 0,
     }
+    MODEL_CLASSES = (
+        {'model': SleepTableModel, 'adder': SleepAdderWindow},
+    )
+
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.adder_window = self.create_adder_window(0)
 
     def _init_main_panel(self):
         table_view = QTableView()
@@ -185,10 +192,30 @@ class RawTablePanel(BaseMenuPanel):
         table_view.setSelectionMode(QAbstractItemView.SingleSelection)
         table_view.setColumnHidden(0, True)
 
-    def change_source_model(self, source_model):
+    def _init_right_click_menu(self):
+        self.right_click_menu = QMenu(self)
+        menu = self.right_click_menu
+
+        action_add = QAction('Adder', self)
+        action_add.triggered.connect(lambda: self.open_adder_window())
+        menu.addAction(action_add)
+
+    def change_source_model(self, index):
         self.table_model.beginResetModel()
-        self.table_model.setSourceModel(source_model)
+        self.table_model.setSourceModel(self.create_source_model(index))
         self.table_model.endResetModel()
+
+        self.adder_window = self.create_adder_window(index)
+
+    @classmethod
+    def create_source_model(cls, index):
+        return cls.MODEL_CLASSES[index]['model']()
+
+    def create_adder_window(self, index):
+        return self.MODEL_CLASSES[index]['adder'](self.owner)
+
+    def open_adder_window(self):
+        self.adder_window.show()
 
 
 if __name__ == "__main__":

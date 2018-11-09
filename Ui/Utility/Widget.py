@@ -295,3 +295,26 @@ class BaseMenuPanel(QWidget):
 
     def _init_main_panel(self):
         raise NotImplementedError
+
+
+class RightClickable(QWidget):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self.right_click_menu = None
+        self._init_right_click_menu()
+        self._assert_right_click_menu()
+
+    def _init_right_click_menu(self):
+        """
+        Should assign self.right_click_menu.
+        """
+        raise NotImplementedError
+
+    def _assert_right_click_menu(self):
+        if not isinstance(self.right_click_menu, QMenu):
+            raise ValueError("self.right_click_menu not a QMenu.")
+
+    def contextMenuEvent(self, event):
+        self.right_click_menu.popup(QCursor.pos())
+        super().contextMenuEvent(event)
