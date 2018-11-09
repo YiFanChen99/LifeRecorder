@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate
 
-from Ui.Utility.Window import *
+from Ui.Utility.Window import SimpleAdderWindow
 from Ui.Utility.Widget import DateEdit, MapComboBox
 from Model.DbTableModel.RecordModel import RecordUtility
 

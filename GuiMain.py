@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-from collections import OrderedDict
-from PyQt5.QtWidgets import *
 
 from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu
-from Ui.Utility.Window import BaseMainWindow, BaseConfigLoader
-from Ui.Utility.Widget import BaseMenuPanel, PanelChangeable
-from Ui.Utility.TablePanel import SleepDurationTablePanel, FleshDurationTablePanel
-from Model.TableViewModel import ProxyModel, SleepTableModel
+from Ui.Utility.Window import *
+from Ui.Utility.Widget import *
+from Ui.Utility.TablePanel import *
+from Model.TableViewModel import *
 from Model.DataAccessor.Configure import config
 
 
