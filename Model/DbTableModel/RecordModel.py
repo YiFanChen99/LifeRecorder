@@ -104,30 +104,6 @@ class GroupRelationModel(BaseModel):
             return super().get_record_attr(record, attr)
 
 
-class BasicRecordModel(BaseModel):
-    ACCESSOR = BasicRecord
-
-    @classmethod
-    def get_column_names(cls):
-        """
-        >>> BasicRecordModel.get_column_names()
-        ['id', 'date_id', 'group_id']
-        """
-        return super()._default_columns()
-
-
-class ExtraRecordModel(BaseModel):
-    ACCESSOR = ExtraRecord
-
-    @classmethod
-    def get_column_names(cls):
-        """
-        >>> ExtraRecordModel.get_column_names()
-        ['id', 'basic_id', 'key', 'value']
-        """
-        return super()._default_columns()
-
-
 class RawRecordModel(BaseModel):
     @classmethod
     def get_column_names(cls):
