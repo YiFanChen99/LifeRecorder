@@ -17,60 +17,6 @@ class ProxyModel(QSortFilterProxyModel):
         self.setSourceModel(SleepTableModel() if source is None else source)
 
 
-class PeeweeTableModel(QAbstractTableModel):
-    def __init__(self, model_data=None, parent=None):
-        super(PeeweeTableModel, self).__init__(parent)
-
-        self.column_headers = self.get_column_headers()
-        self.get_record_value = self.get_db_model().get_record_attr
-        self.model_data = model_data if model_data else self.get_all_model_data()
-
-    @classmethod
-    def get_db_model(cls):
-        raise NotImplementedError()
-
-    @classmethod
-    def get_column_headers(cls):
-        return list(cls.get_db_model().get_column_names())
-
-    @classmethod
-    def get_all_model_data(cls):
-        return list(cls.get_db_model().get_data())
-
-    def rowCount(self, *args):
-        return len(self.model_data)
-
-    def columnCount(self, *args):
-        return len(self.column_headers)
-
-    def data(self, q_index, role=None):
-        if role == Qt.DisplayRole:
-            record = self.model_data[q_index.row()]
-            c_index = q_index.column()
-            return record.id if c_index == 0 else self.data_record(record, c_index)
-        if role == Qt.BackgroundRole:
-            return QBrush(Qt.darkGray)
-        if role == Qt.TextColorRole:
-            return QBrush(QColor(QVariant("#b0d4b0")))
-
-    def headerData(self, index, orientation, role=None):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
-                return self.column_headers[index]
-            else:
-                return index
-
-    def data_record(self, record, index):
-        attr = self.column_headers[index]
-        return str(self.get_record_value(record, attr))
-
-
-class RecordTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return RawRecordModel
-
-
 class DateFilter(object):
     class Type(Enum):
         ONE_MONTH = '1 month'
@@ -190,6 +136,10 @@ class BaseRawTableModel(BaseTableModel):
 
 class SleepTableModel(BaseRawTableModel):
     DB_MODEL = SleepModel
+
+
+class RawRecordTableModel(BaseRawTableModel):
+    DB_MODEL = RawRecordModel
 
 
 class RecordGroupTableModel(BaseRawTableModel):

@@ -105,13 +105,15 @@ class GroupRelationModel(BaseModel):
 
 
 class RawRecordModel(BaseModel):
+    ACCESSOR = BasicRecord
+
     @classmethod
     def get_column_names(cls):
         return ['id', 'date', 'group', 'extra']
 
     @classmethod
-    def get_data(cls):
-        return BasicRecord.select().prefetch()
+    def _select(cls, *args):
+        return super()._select(*args).prefetch(RecordGroup)
 
     @classmethod
     def get_record_attr(cls, record, attr):

@@ -59,11 +59,11 @@ class DurationModel(BaseModel):
     ACCESSOR = None
 
     @classmethod
-    def get_column_names(cls, duration=DurationType.DAILY):
+    def get_column_names(cls, duration):
         return list(cls._get_columns(duration).keys())
 
     @classmethod
-    def get_data(cls, duration=DurationType.DAILY):
+    def get_data(cls, duration):
         return cls._select(
             *cls._get_select_columns(duration)
         ).group_by(*cls._get_select_group_conditions(duration))
