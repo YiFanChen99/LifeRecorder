@@ -78,7 +78,7 @@ class SleepDurationModel(DurationModel):
     ACCESSOR = SleepDateView
 
     @classmethod
-    def _get_columns(cls, duration):
+    def _get_columns_definition(cls, duration):
         avg_duration = Func.time(fn.AVG(fn.STRFTIME("%s", SleepDateView.duration))).alias('duration')
 
         if duration is DurationType.WEEKLY:
@@ -97,7 +97,7 @@ class SleepDurationModel(DurationModel):
             ))
         else:
             """ names for DurationType.Day: ['id', 'date', 'duration', 'count'] """
-            return super()._get_columns(duration)
+            return super()._get_columns_definition(duration)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from Model.DataAccessor.DbTableAccessor import IntegrityError, fn
 
 
 class BaseModel(object):
+    # Used on create, _select, _default_columns.
     ACCESSOR = None
 
     @classmethod
@@ -56,11 +57,13 @@ class DurationType(Enum):
 
 
 class DurationModel(BaseModel):
+    # Used on _get_columns_definition, _get_select_group_conditions.
+    #   Also used on create, _select, _default_columns by BaseModel.
     ACCESSOR = None
 
     @classmethod
     def get_column_names(cls, duration):
-        return list(cls._get_columns(duration).keys())
+        return list(cls._get_columns_definition(duration).keys())
 
     @classmethod
     def get_data(cls, duration):
@@ -69,21 +72,15 @@ class DurationModel(BaseModel):
         ).group_by(*cls._get_select_group_conditions(duration))
 
     @classmethod
-    def _get_columns(cls, duration):
+    def _get_columns_definition(cls, duration):
         if duration is DurationType.DAILY:
-            return cls._default_columns()
+            return OrderedDict((name, getattr(cls.ACCESSOR, name)) for name in cls._default_columns())
         else:
             raise NotImplementedError
 
     @classmethod
-    def _default_columns(cls):
-        if cls.ACCESSOR:
-            return OrderedDict((name, getattr(cls.ACCESSOR, name)) for name in cls.ACCESSOR.get_column_names())
-        raise KeyError('There is no ACCESSOR.')
-
-    @classmethod
     def _get_select_columns(cls, duration):
-        return list(cls._get_columns(duration).values())
+        return list(cls._get_columns_definition(duration).values())
 
     @classmethod
     def _get_select_group_conditions(cls, duration):
