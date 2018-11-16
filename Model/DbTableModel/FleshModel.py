@@ -51,7 +51,7 @@ class FleshDurationModel(DurationModel):
     ACCESSOR = Timeline
 
     @classmethod
-    def _get_columns_definition(cls, duration):
+    def get_columns_definition(cls, duration):
         sum_count = fn.SUM(Flesh.count).alias('count')
 
         if duration is DurationType.DAILY:
@@ -74,7 +74,7 @@ class FleshDurationModel(DurationModel):
                 ('count', sum_count),
             ))
         else:
-            return super()._get_columns_definition(duration)
+            return super().get_columns_definition(duration)
 
     @classmethod
     def _select(cls, *args):
