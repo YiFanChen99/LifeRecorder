@@ -122,7 +122,7 @@ class RecordRawModel(BaseModel):
         elif attr == 'group':
             return record.group_id.description
         elif attr == 'extra':
-            return ", ".join(["<{0}: {1}>".format(extra.key, extra.value) for extra in record.extrarecord])
+            return ", ".join(["<{0}: {1}>".format(extra.key, extra.value) for extra in record.extra])
         else:  # default
             return super().get_record_attr(record, attr)
 

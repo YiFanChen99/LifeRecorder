@@ -42,12 +42,12 @@ class GroupRelation(BaseModel):
 
 
 class BasicRecord(BaseModel):
-    date_id = ForeignKeyField(Timeline, backref='basicrecord')
-    group_id = ForeignKeyField(RecordGroup, backref='basicrecord')
+    date_id = ForeignKeyField(Timeline, backref='record')
+    group_id = ForeignKeyField(RecordGroup, backref='basic')
 
 
 class ExtraRecord(BaseModel):
-    basic_id = ForeignKeyField(BasicRecord, backref='extrarecord')
+    basic_id = ForeignKeyField(BasicRecord, backref='extra')
     key = TextField(null=False)
     value = TextField(null=False)
 
