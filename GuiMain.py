@@ -99,7 +99,7 @@ class DataViewPanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 
     def _create_panels(self):
         return (
-            RawRecordTablePanel(self),
+            RecordRawTablePanel(self),
             RecordGroupTablePanel(self),
             GroupRelationTablePanel(self),
             SleepTablePanel(self),

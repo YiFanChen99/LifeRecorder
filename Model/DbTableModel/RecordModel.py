@@ -104,7 +104,7 @@ class GroupRelationModel(BaseModel):
             return super().get_record_attr(record, attr)
 
 
-class RawRecordModel(BaseModel):
+class RecordRawModel(BaseModel):
     ACCESSOR = BasicRecord
 
     @classmethod

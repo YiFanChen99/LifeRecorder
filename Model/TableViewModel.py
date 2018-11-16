@@ -6,7 +6,7 @@ from PyQt5.QtGui import *
 from Model.DbTableModel.BaseModel import DurationType
 from Model.DbTableModel.SleepModel import SleepModel, SleepDurationModel
 from Model.DbTableModel.FleshModel import FleshDurationModel
-from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RawRecordModel
+from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RecordRawModel
 from Model.Utility import DateFilter
 
 
@@ -116,8 +116,8 @@ class SleepTableModel(BaseRawTableModel):
     DB_MODEL = SleepModel
 
 
-class RawRecordTableModel(BaseRawTableModel):
-    DB_MODEL = RawRecordModel
+class RecordRawTableModel(BaseRawTableModel):
+    DB_MODEL = RecordRawModel
 
 
 class RecordGroupTableModel(BaseRawTableModel):
