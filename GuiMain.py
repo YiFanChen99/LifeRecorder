@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+from collections import OrderedDict
 
 from Ui.RecordWindow import RecordAdderWindow
 from Ui.MainMenu import MainMenu
+from Ui.MainPanel import *
+from Ui.Utility.Panel import *
 from Ui.Utility.Window import *
-from Ui.Utility.Widget import *
-from Ui.Utility.TablePanel import *
-from Model.TableViewModel import *
 from Model.DataAccessor.Configure import config
 
 
@@ -110,7 +110,7 @@ class MainWindowV2(BaseMainWindow, BaseConfigLoader):
         return MainPanelV2(self)
 
 
-class MainPanelV2(BaseMenuPanel, PanelChangeable):
+class MainPanelV2(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
     MENU_CONFIG = {
         'menu': OrderedDict((
             ('Timeline', {
@@ -125,7 +125,8 @@ class MainPanelV2(BaseMenuPanel, PanelChangeable):
         'default_selection': 0,
     }
 
-    def _init_main_panel(self):
+    def _init_layout(self):
+        self._init_menu(self.MENU_CONFIG)
         self._init_panels()
 
     def _create_panels(self):
@@ -135,7 +136,7 @@ class MainPanelV2(BaseMenuPanel, PanelChangeable):
         )
 
 
-class TimelinePanel(BaseMenuPanel, PanelChangeable):
+class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
     MENU_CONFIG = {
         'menu': OrderedDict((
             ('Sleep', {
@@ -150,7 +151,8 @@ class TimelinePanel(BaseMenuPanel, PanelChangeable):
         'default_selection': 0,
     }
 
-    def _init_main_panel(self):
+    def _init_layout(self):
+        self._init_menu(self.MENU_CONFIG)
         self._init_panels()
 
     def _create_panels(self):
@@ -160,62 +162,25 @@ class TimelinePanel(BaseMenuPanel, PanelChangeable):
         )
 
 
-class RawTablePanel(BaseMenuPanel, RightClickable):
+class RawTablePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
     MENU_CONFIG = {
         'menu': OrderedDict((
             ('Sleep', {
-                'callback': lambda obj: obj.change_source_model(0),
+                'callback': lambda obj: obj.change_panel(0),
                 'shortcut': 'Ctrl+1',
             }),
         )),
         'default_selection': 0,
     }
-    MODEL_CLASSES = (
-        {'model': SleepTableModel, 'adder': SleepAdderWindow},
-    )
 
-    def __init__(self, owner):
-        super().__init__(owner)
-        self.adder_window = self.create_adder_window(0)
+    def _init_layout(self):
+        self._init_menu(self.MENU_CONFIG)
+        self._init_panels()
 
-    def _init_main_panel(self):
-        table_view = QTableView()
-        self.table_view = table_view
-        self.layout().addWidget(table_view)
-
-        self.table_model = ProxyModel()
-        table_view.setModel(self.table_model)
-
-        table_view.resizeColumnsToContents()
-        table_view.setSortingEnabled(True)
-        table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
-        table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        table_view.setColumnHidden(0, True)
-
-    def _init_right_click_menu(self):
-        self.right_click_menu = QMenu(self)
-        menu = self.right_click_menu
-
-        action_add = QAction('Adder', self)
-        action_add.triggered.connect(lambda: self.open_adder_window())
-        menu.addAction(action_add)
-
-    def change_source_model(self, index):
-        self.table_model.beginResetModel()
-        self.table_model.setSourceModel(self.create_source_model(index))
-        self.table_model.endResetModel()
-
-        self.adder_window = self.create_adder_window(index)
-
-    @classmethod
-    def create_source_model(cls, index):
-        return cls.MODEL_CLASSES[index]['model']()
-
-    def create_adder_window(self, index):
-        return self.MODEL_CLASSES[index]['adder'](self.owner)
-
-    def open_adder_window(self):
-        self.adder_window.show()
+    def _create_panels(self):
+        return (
+            SleepTablePanel(self),
+        )
 
 
 if __name__ == "__main__":
