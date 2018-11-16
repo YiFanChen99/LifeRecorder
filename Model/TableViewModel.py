@@ -50,23 +50,22 @@ class BaseTableModel(QAbstractTableModel):
 
     @classmethod
     def get_column_headers(cls, *args):
-        raise NotImplementedError
+        return list(cls.DB_MODEL.get_column_names(*args))
 
     @classmethod
     def get_model_data(cls, *args):
-        raise NotImplementedError
+        return list(cls.DB_MODEL.get_data(*args))
 
     def __init__(self):
         if not self.DB_MODEL:
             raise NotImplementedError
 
         super().__init__()
-        self.column_headers = None
-        self.model_data = None
         self._init_data()
 
-    def _init_data(self):
-        raise NotImplementedError
+    def _init_data(self, *args):
+        self.column_headers = self.get_column_headers(*args)
+        self.model_data = self.get_model_data(*args)
 
     def rowCount(self, *args):
         return len(self.model_data)
@@ -101,15 +100,14 @@ class BaseRawTableModel(BaseTableModel):
 
     @classmethod
     def get_column_headers(cls):
-        return list(cls.DB_MODEL.get_column_names())
+        return super().get_column_headers()
 
     @classmethod
     def get_model_data(cls):
-        return list(cls.DB_MODEL.get_data())
+        return super().get_model_data()
 
     def _init_data(self):
-        self.column_headers = self.get_column_headers()
-        self.model_data = self.get_model_data()
+        super()._init_data()
 
 
 class SleepTableModel(BaseRawTableModel):
@@ -135,23 +133,22 @@ class BaseDurationTableModel(BaseTableModel):
 
     @classmethod
     def get_column_headers(cls, duration):
-        return list(cls.DB_MODEL.get_column_names(duration))
+        return super().get_column_headers(duration)
 
     @classmethod
     def get_model_data(cls, duration):
-        return list(cls.DB_MODEL.get_data(duration))
+        return super().get_model_data(duration)
 
-    def _init_data(self):
-        self.set_duration(duration=self.DEFAULT_DURATION)
+    def _init_data(self, duration=None):
+        if duration is None:
+            duration = self.DEFAULT_DURATION
+        super()._init_data(duration)
 
     def set_duration(self, duration):
-        self.column_headers = self.get_column_headers(duration)
-        self.model_data = self.get_model_data(duration)
+        self._init_data(duration)
 
     def get_record_date(self, record):
-        """
-        Assuming date will always be index 1.
-        """
+        # Assuming date will always be index 1.
         return self.get_record_data(record, 1)
 
 
