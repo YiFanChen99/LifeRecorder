@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import datetime
-from enum import Enum
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
@@ -9,33 +7,13 @@ from Model.DbTableModel.BaseModel import DurationType
 from Model.DbTableModel.SleepModel import SleepModel, SleepDurationModel
 from Model.DbTableModel.FleshModel import FleshDurationModel
 from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RawRecordModel
+from Model.Utility import DateFilter
 
 
 class ProxyModel(QSortFilterProxyModel):
     def __init__(self, source=None):
         super().__init__()
         self.setSourceModel(SleepTableModel() if source is None else source)
-
-
-class DateFilter(object):
-    class Type(Enum):
-        ONE_MONTH = '1 month'
-        SIX_MONTH = '6 months'
-        TWO_YEAR = '2 years'
-        NO = 'no'
-
-    @staticmethod
-    def get_date(date_filter):
-        if date_filter == DateFilter.Type.NO:
-            return datetime.datetime.min.date()
-        elif date_filter == DateFilter.Type.ONE_MONTH:
-            return datetime.date.today() - datetime.timedelta(days=30)
-        elif date_filter == DateFilter.Type.SIX_MONTH:
-            return datetime.date.today() - datetime.timedelta(days=183)
-        elif date_filter == DateFilter.Type.TWO_YEAR:
-            return datetime.date.today() - datetime.timedelta(days=730)
-        else:
-            raise KeyError
 
 
 class FilterProxyModel(QSortFilterProxyModel):

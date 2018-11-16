@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import *
 
 from Model.DbTableModel.BaseModel import DurationType
-from Model.TableViewModel import DateFilter
+from Model.Utility import DateFilter
 
 
 class AlignHCLabel(QLabel):
