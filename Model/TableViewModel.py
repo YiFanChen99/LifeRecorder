@@ -65,18 +65,6 @@ class PeeweeTableModel(QAbstractTableModel):
         return str(self.get_record_value(record, attr))
 
 
-class RecordGroupTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return RecordGroupModel
-
-
-class GroupRelationTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return GroupRelationModel
-
-
 class RecordTableModel(PeeweeTableModel):
     @classmethod
     def get_db_model(cls):
@@ -202,6 +190,14 @@ class BaseRawTableModel(BaseTableModel):
 
 class SleepTableModel(BaseRawTableModel):
     DB_MODEL = SleepModel
+
+
+class RecordGroupTableModel(BaseRawTableModel):
+    DB_MODEL = RecordGroupModel
+
+
+class GroupRelationTableModel(BaseRawTableModel):
+    DB_MODEL = GroupRelationModel
 
 
 class BaseDurationTableModel(BaseTableModel):

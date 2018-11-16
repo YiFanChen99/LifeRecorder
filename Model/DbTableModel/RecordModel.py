@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-from Model.DbTableModel.BaseModel import BaseModel
+
 from Model import Utility
+from Model.DbTableModel.BaseModel import BaseModel
 from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
 from Model.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation, BasicRecord, ExtraRecord
 
@@ -53,19 +54,21 @@ class RecordUtility(object):
 
 
 class RecordGroupModel(BaseModel):
+    ACCESSOR = RecordGroup
+
     @classmethod
     def get_column_names(cls):
         """
         >>> RecordGroupModel.get_column_names()
         ['id', 'description', 'alias', 'children']
         """
-        names = RecordGroup.get_column_names()
+        names = cls._default_columns()
         names.append('children')
         return names
 
     @classmethod
-    def get_data(cls):
-        return RecordGroup.select().prefetch(GroupRelation)
+    def _select(cls, *args):
+        return super()._select(*args).prefetch(GroupRelation)
 
     @classmethod
     def get_record_attr(cls, record, attr):
@@ -76,13 +79,20 @@ class RecordGroupModel(BaseModel):
 
 
 class GroupRelationModel(BaseModel):
+    ACCESSOR = GroupRelation
+
     @classmethod
     def get_column_names(cls):
+        # noinspection PyProtectedMember
+        """
+        >>> GroupRelationModel._default_columns()
+        ['id', 'parent_id', 'child_id']
+        """
         return ['id', 'parent', 'child']
 
     @classmethod
-    def get_data(cls):
-        return GroupRelation.select().prefetch(RecordGroup)
+    def _select(cls, *args):
+        return super()._select(*args).prefetch(RecordGroup)
 
     @classmethod
     def get_record_attr(cls, record, attr):

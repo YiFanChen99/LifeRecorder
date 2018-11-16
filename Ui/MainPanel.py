@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QSize
 
 from Model.TableViewModel import ProxyModel, FilterProxyModel
-from Model.TableViewModel import SleepTableModel
+from Model.TableViewModel import SleepTableModel, RecordGroupTableModel, GroupRelationTableModel
 from Model.TableViewModel import SleepDurationTableModel, FleshDurationTableModel
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.SleepWindow import SleepAdderWindow
@@ -41,6 +41,16 @@ class BaseMainTablePanel(BaseVBoxPanel, TableViewable, RightClickable, Addable):
 class SleepTablePanel(BaseMainTablePanel):
     SOURCE_MODEL = SleepTableModel()
     ADDER_WINDOW_CLASS = SleepAdderWindow
+
+
+class RecordGroupTablePanel(BaseMainTablePanel):
+    SOURCE_MODEL = RecordGroupTableModel()
+    ADDER_WINDOW_CLASS = None
+
+
+class GroupRelationTablePanel(BaseMainTablePanel):
+    SOURCE_MODEL = GroupRelationTableModel()
+    ADDER_WINDOW_CLASS = None
 
 
 class DurationTablePanel(BaseMainTablePanel):

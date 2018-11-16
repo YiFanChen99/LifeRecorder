@@ -165,9 +165,17 @@ class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 class RawTablePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
     MENU_CONFIG = {
         'menu': OrderedDict((
-            ('Sleep', {
+            ('RecordGroup', {
                 'callback': lambda obj: obj.change_panel(0),
                 'shortcut': 'Ctrl+1',
+            }),
+            ('GroupRelation', {
+                'callback': lambda obj: obj.change_panel(1),
+                'shortcut': 'Ctrl+2',
+            }),
+            ('Sleep', {
+                'callback': lambda obj: obj.change_panel(2),
+                'shortcut': 'Ctrl+3',
             }),
         )),
         'default_selection': 0,
@@ -179,6 +187,8 @@ class RawTablePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 
     def _create_panels(self):
         return (
+            RecordGroupTablePanel(self),
+            GroupRelationTablePanel(self),
             SleepTablePanel(self),
         )
 

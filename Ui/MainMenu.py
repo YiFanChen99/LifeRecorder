@@ -18,14 +18,6 @@ class MainMenu(QWidget):
                         'shortcut': 'Ctrl+1',
                         'callback': lambda obj: obj._changing_source_model(RecordTableModel()),
                     })),
-                    ('RecordGroup', {
-                        'shortcut': 'Ctrl+2',
-                        'callback': lambda obj: obj._changing_source_model(RecordGroupTableModel()),
-                    }),
-                    ('GroupRelation', {
-                        'shortcut': 'Ctrl+3',
-                        'callback': lambda obj: obj._changing_source_model(GroupRelationTableModel()),
-                    }),
                     ('NewView', dict({
                         'callback': lambda obj: obj.owner._show_new_window(),
                         'shortcut': 'Ctrl+4',
