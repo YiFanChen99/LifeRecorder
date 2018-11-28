@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QSize
 
 from Model.TableViewModel import ProxyModel, FilterProxyModel
-from Model.TableViewModel import SleepTableModel, RecordRawTableModel, RecordGroupTableModel, GroupRelationTableModel
-from Model.TableViewModel import SleepDurationTableModel, FleshDurationTableModel
+from Model.TableViewModel import SleepTableModel, RecordGroupTableModel
+from Model.TableViewModel import SleepDurationTableModel, FleshDurationTableModel, RecordDurationTableModel
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.SleepWindow import SleepAdderWindow
 from Ui.RecordWindow import RecordAdderWindow
@@ -27,7 +27,7 @@ class BaseMainTablePanel(BaseVBoxPanel, TableViewable, RightClickable, Addable):
 
     def _init_table_view(self):
         super()._init_table_view()
-        self.table_view.setColumnHidden(0, True)
+        self.table_view.setColumnHidden(0, self.SOURCE_MODEL.HIDDEN_COLUMN_0)
 
     def _init_right_click_menu_actions(self):
         menu = self.right_click_menu
@@ -44,18 +44,8 @@ class SleepTablePanel(BaseMainTablePanel):
     ADDER_WINDOW_CLASS = SleepAdderWindow
 
 
-class RecordRawTablePanel(BaseMainTablePanel):
-    SOURCE_MODEL = RecordRawTableModel()
-    ADDER_WINDOW_CLASS = RecordAdderWindow
-
-
 class RecordGroupTablePanel(BaseMainTablePanel):
     SOURCE_MODEL = RecordGroupTableModel()
-    ADDER_WINDOW_CLASS = None
-
-
-class GroupRelationTablePanel(BaseMainTablePanel):
-    SOURCE_MODEL = GroupRelationTableModel()
     ADDER_WINDOW_CLASS = None
 
 
@@ -113,3 +103,8 @@ class SleepDurationTablePanel(DurationTablePanel):
 class FleshDurationTablePanel(DurationTablePanel):
     SOURCE_MODEL = FleshDurationTableModel()
     ADDER_WINDOW_CLASS = FleshAdderWindow
+
+
+class RecordDurationTablePanel(DurationTablePanel):
+    SOURCE_MODEL = RecordDurationTableModel()
+    ADDER_WINDOW_CLASS = RecordAdderWindow

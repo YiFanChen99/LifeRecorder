@@ -6,7 +6,7 @@ from PyQt5.QtGui import *
 from Model.DbTableModel.BaseModel import DurationType
 from Model.DbTableModel.SleepModel import SleepModel, SleepDurationModel
 from Model.DbTableModel.FleshModel import FleshDurationModel
-from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RecordRawModel
+from Model.DbTableModel.RecordModel import RecordGroupModel, RecordDurationModel
 from Model.Utility import DateFilter
 
 
@@ -42,11 +42,12 @@ class FilterProxyModel(QSortFilterProxyModel):
         return self.date_started_cache <= date
 
     def filterAcceptsColumn(self, column, model_index):
-        return column != 0
+        return not (column in self.sourceModel().HIDDEN_COLUMNS)
 
 
 class BaseTableModel(QAbstractTableModel):
     DB_MODEL = None
+    HIDDEN_COLUMN_0 = True
 
     @classmethod
     def get_column_headers(cls, *args):
@@ -77,7 +78,8 @@ class BaseTableModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             record = self.model_data[q_index.row()]
             c_index = q_index.column()
-            return record.id if c_index == 0 else str(self.get_record_data(record, c_index))
+            value = self.get_record_data(record, c_index)
+            return '-' if value is None else str(value)
         if role == Qt.BackgroundRole:
             return QBrush(Qt.darkGray)
         if role == Qt.TextColorRole:
@@ -114,22 +116,16 @@ class SleepTableModel(BaseRawTableModel):
     DB_MODEL = SleepModel
 
 
-class RecordRawTableModel(BaseRawTableModel):
-    DB_MODEL = RecordRawModel
-
-
 class RecordGroupTableModel(BaseRawTableModel):
     DB_MODEL = RecordGroupModel
-
-
-class GroupRelationTableModel(BaseRawTableModel):
-    DB_MODEL = GroupRelationModel
+    HIDDEN_COLUMN_0 = False
 
 
 class BaseDurationTableModel(BaseTableModel):
     DB_MODEL = None
     DEFAULT_DURATION = None
     DEFAULT_DATE_FILTER = None
+    HIDDEN_COLUMNS = [0]
 
     @classmethod
     def get_column_headers(cls, duration):
@@ -162,3 +158,13 @@ class FleshDurationTableModel(BaseDurationTableModel):
     DB_MODEL = FleshDurationModel
     DEFAULT_DURATION = DurationType.WEEKLY
     DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH
+
+
+class RecordDurationTableModel(BaseDurationTableModel):
+    DB_MODEL = RecordDurationModel
+    DEFAULT_DURATION = DurationType.WEEKLY
+    DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH
+    HIDDEN_COLUMNS = []
+
+    def get_record_date(self, record):
+        return self.get_record_data(record, 0)

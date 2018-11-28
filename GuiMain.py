@@ -47,13 +47,17 @@ class MainPanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
     MENU_CONFIG = {
         'menu': OrderedDict((
-            ('Sleep', {
+            ('Record', {
                 'callback': lambda obj: obj.change_panel(0),
                 'shortcut': 'Ctrl+1',
             }),
-            ('Flesh', {
+            ('Sleep', {
                 'callback': lambda obj: obj.change_panel(1),
                 'shortcut': 'Ctrl+2',
+            }),
+            ('Flesh', {
+                'callback': lambda obj: obj.change_panel(2),
+                'shortcut': 'Ctrl+3',
             }),
         )),
         'default_selection': 0,
@@ -65,6 +69,7 @@ class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 
     def _create_panels(self):
         return (
+            RecordDurationTablePanel(self),
             SleepDurationTablePanel(self),
             FleshDurationTablePanel(self),
         )
@@ -73,21 +78,13 @@ class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 class DataViewPanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
     MENU_CONFIG = {
         'menu': OrderedDict((
-            ('Record', {
+            ('RecordGroup', {
                 'callback': lambda obj: obj.change_panel(0),
                 'shortcut': 'Ctrl+1',
             }),
-            ('RecordGroup', {
+            ('Sleep', {
                 'callback': lambda obj: obj.change_panel(1),
                 'shortcut': 'Ctrl+2',
-            }),
-            ('GroupRelation', {
-                'callback': lambda obj: obj.change_panel(2),
-                'shortcut': 'Ctrl+3',
-            }),
-            ('Sleep', {
-                'callback': lambda obj: obj.change_panel(3),
-                'shortcut': 'Ctrl+4',
             }),
         )),
         'default_selection': 0,
@@ -99,9 +96,7 @@ class DataViewPanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
 
     def _create_panels(self):
         return (
-            RecordRawTablePanel(self),
             RecordGroupTablePanel(self),
-            GroupRelationTablePanel(self),
             SleepTablePanel(self),
         )
 

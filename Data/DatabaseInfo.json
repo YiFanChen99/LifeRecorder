@@ -39,7 +39,7 @@
 				"Note": "記錄的補充資訊，例如補充敘述、時長、效率等等。"
 			}, {
 				"Name": "RecordGroup",
-				"Schema": ["id", "description", "alias"],
+				"Schema": ["id", "description", "alias", "countable"],
 				"Note": "記錄的類別。"
 			}, {
 				"Name": "GroupRelation",

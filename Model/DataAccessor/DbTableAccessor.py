@@ -34,11 +34,23 @@ class SleepDateView(BaseModel):
 class RecordGroup(BaseModel):
     description = TextField(unique=True)
     alias = TextField(null=True)
+    countable = BooleanField(null=False)
+
+    def __getattr__(self, item):
+        if item == 'parents':
+            return tuple(relation.parent for relation in self.parent)
+        elif item == 'children':
+            return tuple(relation.child for relation in self.child)
+        else:
+            return super().__getattr__(item)
+
+    def __repr__(self):
+        return "{0}-{1}".format(self.id, self.description)
 
 
 class GroupRelation(BaseModel):
-    parent = ForeignKeyField(RecordGroup, backref='parent')
-    child = ForeignKeyField(RecordGroup, backref='child')
+    parent = ForeignKeyField(RecordGroup, backref='child')
+    child = ForeignKeyField(RecordGroup, backref='parent')
 
 
 class BasicRecord(BaseModel):

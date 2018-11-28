@@ -16,13 +16,21 @@ def covert_timedelta_to_hours_and_minutes(timedelta):
     return timedelta.seconds//3600, (timedelta.seconds//60) % 60
 
 
+def get_week_start(date):
+    return date - datetime.timedelta(days=date.weekday())
+
+
 def get_week_start_and_end(date):
-    start = date - datetime.timedelta(days=date.weekday())
+    start = get_week_start(date)
     end = date + datetime.timedelta(days=(6 - date.weekday()))
     return start, end
 
 
-class GetWeekStartAndEndTest(unittest.TestCase):
+def get_month_start(date):
+    return date.replace(day=1)
+
+
+class _GetWeekStartAndEndTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.monday = datetime.date(2018, 10, 15)
