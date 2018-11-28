@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 from collections import OrderedDict
+import unittest
 
 from Model.DataAccessor.DbTableAccessor import IntegrityError, fn
 
 
 class BaseModel(object):
+    # Used on create, _select, _default_columns.
     ACCESSOR = None
 
     @classmethod
-    def get_column_names(cls):
+    def get_column_names(cls, *args):
         """
         Can easily be implemented with cls._default_columns().
         Should add doctest for readibility.
@@ -18,7 +20,7 @@ class BaseModel(object):
         raise NotImplementedError()
 
     @classmethod
-    def get_data(cls):
+    def get_data(cls, *args):
         return cls._select()
 
     @classmethod
@@ -55,35 +57,52 @@ class DurationType(Enum):
     MONTHLY = 'Monthly'
 
 
-class DurationModel(BaseModel):
+class DurationalColumnModel(BaseModel):
+    # Used on create, _select, _default_columns by super().
     ACCESSOR = None
 
-    @classmethod
-    def get_column_names(cls, duration=DurationType.DAILY):
-        return list(cls._get_columns(duration).keys())
+    @staticmethod
+    def get_definition_leaders(definition):
+        if isinstance(definition, dict):
+            return list(definition.keys())
+        else:
+            return [item[0] if isinstance(item, (list, tuple)) else item
+                    for item in definition]
 
     @classmethod
-    def get_data(cls, duration=DurationType.DAILY):
-        return cls._select(
-            *cls._get_select_columns(duration)
-        ).group_by(*cls._get_select_group_conditions(duration))
+    def get_column_names(cls, duration):
+        definition = cls.get_columns_definition(duration)
+        return cls.get_definition_leaders(definition)
 
     @classmethod
-    def _get_columns(cls, duration):
+    def get_columns_definition(cls, duration):
         if duration is DurationType.DAILY:
             return cls._default_columns()
         else:
             raise NotImplementedError
 
-    @classmethod
-    def _default_columns(cls):
-        if cls.ACCESSOR:
-            return OrderedDict((name, getattr(cls.ACCESSOR, name)) for name in cls.ACCESSOR.get_column_names())
-        raise KeyError('There is no ACCESSOR.')
+
+class DurationModel(DurationalColumnModel):
+    # Used on get_columns_definition, _get_select_group_conditions.
+    #   Also used on create, _select, _default_columns by super().
+    ACCESSOR = None
 
     @classmethod
-    def _get_select_columns(cls, duration):
-        return list(cls._get_columns(duration).values())
+    def get_data(cls, duration):
+        return cls._select(
+            *cls.get_select_columns(duration)
+        ).group_by(*cls._get_select_group_conditions(duration))
+
+    @classmethod
+    def get_columns_definition(cls, duration):
+        if duration is DurationType.DAILY:
+            return OrderedDict((name, getattr(cls.ACCESSOR, name)) for name in cls._default_columns())
+        else:
+            raise NotImplementedError
+
+    @classmethod
+    def get_select_columns(cls, duration):
+        return list(cls.get_columns_definition(duration).values())
 
     @classmethod
     def _get_select_group_conditions(cls, duration):
@@ -106,9 +125,56 @@ class Func(object):
         return fn.DATE(field, "weekday 0", "-6 days")
 
     @staticmethod
+    def week_end(field):
+        return fn.DATE(field, "weekday 0")
+
+    @staticmethod
     def month_start(field):
         return fn.DATE(field, "start of month")
 
     @staticmethod
     def time(field):
         return fn.STRFTIME("%H:%M", field, 'unixepoch')
+
+
+class _DurationalColumnModelTest(unittest.TestCase):
+
+    def assertLeader(self, definition, expect):
+        result = DurationalColumnModel.get_definition_leaders(definition)
+        self.assertEqual(result, expect)
+
+    def test_single_definition(self):
+        expect = ['ekko', 'eiki']
+
+        definition = expect
+        self.assertLeader(definition, expect)
+
+        definition = tuple(definition)
+        self.assertNotEqual(definition, expect)
+        self.assertLeader(definition, expect)
+
+    def test_dict_definition(self):
+        expect = ['ekko', 'eiki']
+
+        # dict definition
+        definition = {key: 30 for key in expect}
+        self.assertLeader(definition, expect)
+
+        # OrderedDict definition
+        definition = OrderedDict((key, 30) for key in expect)
+        self.assertLeader(definition, expect)
+
+    def test_multi_definition(self):
+        expect = ['ekko', 'eiki']
+
+        # tuple sub-definition
+        definition = ((key, 9, 2) for key in expect)
+        self.assertLeader(definition, expect)
+
+        # list sub-definition
+        definition = ([key, 'name', False] for key in expect)
+        self.assertLeader(definition, expect)
+
+
+if __name__ == "__main__":
+    unittest.main()

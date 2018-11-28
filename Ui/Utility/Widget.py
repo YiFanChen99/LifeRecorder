@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import *
+
+from Model.DbTableModel.BaseModel import DurationType
+from Model.Utility import DateFilter
 
 
 class AlignHCLabel(QLabel):
@@ -36,7 +39,7 @@ class HBoxMenu(QWidget):
                 'Sleep': {'callback': lambda obj: obj.method_sleep(), 'shortcut': 'F2'},
                 'Flesh': {'callback': lambda obj: obj.method_flesh()}
             },
-            'default_selection': 'Sleep'
+            'default_selection': 'Sleep'  # Optional
         })
         """
         super(HBoxMenu, self).__init__()
@@ -45,12 +48,24 @@ class HBoxMenu(QWidget):
         self._init_actions(config['menu'])
         self._init_layout(config['menu'])
 
-        self.last_action = None
-        self.default_selection = config['default_selection']
+        self.default_index = 0
+        if config['default_selection']:
+            self.set_default_selection(config['default_selection'])
+        self.set_checked()
 
-    def trigger_default(self):
-        self.last_action = None
-        self.actions[self.default_selection].trigger()
+    def trigger(self, index=-1):
+        if index == -1:
+            index = self.default_index
+
+        action = self.action_group.actions()[index]
+        action.trigger()
+
+    def set_checked(self, index=-1):
+        if index == -1:
+            index = self.default_index
+
+        action = self.action_group.actions()[index]
+        action.setChecked(True)
 
     def _init_actions(self, config):
         self.actions = {}
@@ -73,11 +88,15 @@ class HBoxMenu(QWidget):
             callback(self.owner)
             self._post_action(action)
 
+    # noinspection PyUnusedLocal, PyMethodMayBeStatic
     def _pre_action(self, action):
-        return self.last_action is not action
+        """
+        ex: return self.last_action is not action
+        """
+        return True
 
     def _post_action(self, action):
-        self.last_action = action
+        pass
 
     def _init_layout(self, config):
         layout = QHBoxLayout()
@@ -99,6 +118,21 @@ class HBoxMenu(QWidget):
             button.setDefaultAction(self.actions[name])
             yield button
 
+    def set_default_selection(self, selection):
+        """
+        :param selection: Allowing either str as action name or int as index.
+        """
+        if isinstance(selection, str):
+            actions = self.action_group.actions()
+            selection = [action.text() for action in actions].index(selection)
+        self._set_default_index(selection)
+
+    def _set_default_index(self, index):
+        if index >= len(self.action_group.actions()):
+            raise IndexError("Index %d out of range %d" % (index, len(self.action_group.actions())))
+
+        self.default_index = index
+
 
 class DateEdit(QDateEdit):
     FORMAT = "yyyy-MM-dd"
@@ -118,7 +152,7 @@ class DateEdit(QDateEdit):
 
 
 class MapComboBox(QComboBox):
-    def __init__(self, options):
+    def __init__(self, options, default_index=0):
         """
         options: {data: text} in dict or OrderedDict
         """
@@ -126,3 +160,87 @@ class MapComboBox(QComboBox):
 
         for data, text in options.items():
             self.addItem(text, data)
+        self.setCurrentIndex(default_index)
+
+
+class DateFilterComBox(MapComboBox):
+    def __init__(self, callback, default_index=3):
+        if not callable(callback):
+            raise ValueError
+
+        options = OrderedDict((enum, enum.value) for enum in DateFilter.Type)
+        super().__init__(options, default_index=default_index)
+
+        self.callback = callback
+        self.currentIndexChanged.connect(self.notify)
+
+    # noinspection PyTypeChecker
+    def setCurrentIndex(self, index):
+        """
+        :param index: index or instance of DateFilter.Type
+        """
+        if isinstance(index, DateFilter.Type):
+            index = list(DateFilter.Type).index(index)
+        super().setCurrentIndex(index)
+
+    def notify(self):
+        self.callback(self.currentData())
+
+
+class DurationGroup(QWidget):
+    BUTTONS = tuple((d_type, d_type.value) for d_type in DurationType)
+
+    def __init__(self, callback, buttons=None, default_checked=0):
+        """
+        buttons: ((callback_key, display_text), )
+        """
+        if not callable(callback):
+            raise ValueError
+        if buttons is None:
+            buttons = self.BUTTONS
+
+        super().__init__()
+        self.callback = callback
+        self.default_checked = default_checked
+        self._init_layout(buttons)
+
+    def trigger(self, index):
+        action = self.group.actions()[index]
+        action.trigger()
+
+    def notify(self, key):
+        self.callback(key)
+
+    # noinspection PyTypeChecker
+    def set_checked(self, checked):
+        """
+        :param checked: index or instance of DurationType
+        """
+        if isinstance(checked, DurationType):
+            checked = list(DurationType).index(checked)
+        action = self.group.actions()[checked]
+        action.setChecked(True)
+
+    def _init_layout(self, buttons):
+        self.setLayout(QHBoxLayout())
+
+        self.group = QActionGroup(self)
+        self._init_action_buttons(buttons)
+        self.set_checked(self.default_checked)
+
+    def _init_action_buttons(self, buttons):
+        for key, value in buttons:
+            button = QToolButton()
+            button.setDefaultAction(self._create_action(key, value))
+            button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            button.sizeHint = lambda: QSize(75, 23)
+            self.layout().addWidget(button)
+
+    def _create_action(self, callback_key, text):
+        if not self.group:
+            raise AttributeError("ActionGroup(self.group) is None.")
+
+        action = QAction(text, self.group)
+        action.setCheckable(True)
+        action.triggered.connect(lambda: self.notify(callback_key))
+        return action

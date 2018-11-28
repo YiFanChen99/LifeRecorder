@@ -61,9 +61,10 @@ class SleepModel(BaseModel):
     def get_column_names(cls):
         """
         >>> SleepModel.get_column_names()
-        ['id', 'start', 'end']
+        ['id', 'start', 'end', 'duration']
         """
-        return super()._default_columns()
+        origin = super()._default_columns()
+        return origin[:] + ['duration']
 
     @classmethod
     def get_record_attr(cls, record, attr):
@@ -77,13 +78,14 @@ class SleepDurationModel(DurationModel):
     ACCESSOR = SleepDateView
 
     @classmethod
-    def _get_columns(cls, duration):
+    def get_columns_definition(cls, duration):
         avg_duration = Func.time(fn.AVG(fn.STRFTIME("%s", SleepDateView.duration))).alias('duration')
 
         if duration is DurationType.WEEKLY:
             return OrderedDict((
                 ('id', SleepDateView.id),
-                ('week', Func.week_start(SleepDateView.date).alias('week')),
+                ('monday', Func.week_start(SleepDateView.date).alias('monday')),
+                ('sunday', Func.week_end(SleepDateView.date).alias('sunday')),
                 ('duration', avg_duration),
                 ('minimum', fn.MIN(SleepDateView.duration).alias('minimum')),
             ))
@@ -95,7 +97,7 @@ class SleepDurationModel(DurationModel):
             ))
         else:
             """ names for DurationType.Day: ['id', 'date', 'duration', 'count'] """
-            return super()._get_columns(duration)
+            return super().get_columns_definition(duration)
 
 
 if __name__ == "__main__":

@@ -3,9 +3,11 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+from Model.DbTableModel.BaseModel import DurationType
 from Model.DbTableModel.SleepModel import SleepModel, SleepDurationModel
 from Model.DbTableModel.FleshModel import FleshDurationModel
-from Model.DbTableModel.RecordModel import RecordGroupModel, GroupRelationModel, RawRecordModel
+from Model.DbTableModel.RecordModel import RecordGroupModel, RecordDurationModel
+from Model.Utility import DateFilter
 
 
 class ProxyModel(QSortFilterProxyModel):
@@ -14,25 +16,57 @@ class ProxyModel(QSortFilterProxyModel):
         self.setSourceModel(SleepTableModel() if source is None else source)
 
 
-class PeeweeTableModel(QAbstractTableModel):
-    def __init__(self, model_data=None, parent=None):
-        super(PeeweeTableModel, self).__init__(parent)
+class FilterProxyModel(QSortFilterProxyModel):
+    def __init__(self, duration=DurationType.DAILY, date_filter=DateFilter.Type.NO):
+        super().__init__()
+        self.duration = duration
+        self.date_filter = date_filter
+        self.date_started_cache = DateFilter.get_date(date_filter)
 
-        self.column_headers = self.get_column_headers()
-        self.get_record_value = self.get_db_model().get_record_attr
-        self.model_data = model_data if model_data else self.get_all_model_data()
+    def set_duration(self, duration):
+        self.duration = duration
+
+        self.beginResetModel()
+        self.sourceModel().set_duration(duration)
+        self.endResetModel()
+
+    def set_date_filter(self, date_filter):
+        self.date_filter = date_filter
+        self.date_started_cache = DateFilter.get_date(date_filter)
+
+        self.beginResetModel()
+        self.endResetModel()
+
+    def filterAcceptsRow(self, row, model_index):
+        date = self.sourceModel().get_record_date(self.sourceModel().model_data[row])
+        return self.date_started_cache <= date
+
+    def filterAcceptsColumn(self, column, model_index):
+        return not (column in self.sourceModel().HIDDEN_COLUMNS)
+
+
+class BaseTableModel(QAbstractTableModel):
+    DB_MODEL = None
+    HIDDEN_COLUMN_0 = True
 
     @classmethod
-    def get_db_model(cls):
-        raise NotImplementedError()
+    def get_column_headers(cls, *args):
+        return list(cls.DB_MODEL.get_column_names(*args))
 
     @classmethod
-    def get_column_headers(cls):
-        return list(cls.get_db_model().get_column_names())
+    def get_model_data(cls, *args):
+        return list(cls.DB_MODEL.get_data(*args))
 
-    @classmethod
-    def get_all_model_data(cls):
-        return list(cls.get_db_model().get_data())
+    def __init__(self):
+        if not self.DB_MODEL:
+            raise NotImplementedError
+
+        super().__init__()
+        self._init_data()
+
+    def _init_data(self, *args):
+        self.column_headers = self.get_column_headers(*args)
+        self.model_data = self.get_model_data(*args)
 
     def rowCount(self, *args):
         return len(self.model_data)
@@ -44,7 +78,8 @@ class PeeweeTableModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             record = self.model_data[q_index.row()]
             c_index = q_index.column()
-            return record.id if c_index == 0 else self.data_record(record, c_index)
+            value = self.get_record_data(record, c_index)
+            return '-' if value is None else str(value)
         if role == Qt.BackgroundRole:
             return QBrush(Qt.darkGray)
         if role == Qt.TextColorRole:
@@ -57,47 +92,79 @@ class PeeweeTableModel(QAbstractTableModel):
             else:
                 return index
 
-    def data_record(self, record, index):
+    def get_record_data(self, record, index):
         attr = self.column_headers[index]
-        return str(self.get_record_value(record, attr))
+        return self.DB_MODEL.get_record_attr(record, attr)
 
 
-class SleepDurationTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return SleepDurationModel
-
-
-class SleepTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return SleepModel
+class BaseRawTableModel(BaseTableModel):
+    DB_MODEL = None
 
     @classmethod
     def get_column_headers(cls):
-        origin = super().get_column_headers()
-        return origin[:] + ['duration']
+        return super().get_column_headers()
 
-
-class FleshTableModel(PeeweeTableModel):
     @classmethod
-    def get_db_model(cls):
-        return FleshDurationModel
+    def get_model_data(cls):
+        return super().get_model_data()
+
+    def _init_data(self):
+        super()._init_data()
 
 
-class RecordGroupTableModel(PeeweeTableModel):
+class SleepTableModel(BaseRawTableModel):
+    DB_MODEL = SleepModel
+
+
+class RecordGroupTableModel(BaseRawTableModel):
+    DB_MODEL = RecordGroupModel
+    HIDDEN_COLUMN_0 = False
+
+
+class BaseDurationTableModel(BaseTableModel):
+    DB_MODEL = None
+    DEFAULT_DURATION = None
+    DEFAULT_DATE_FILTER = None
+    HIDDEN_COLUMNS = [0]
+
     @classmethod
-    def get_db_model(cls):
-        return RecordGroupModel
+    def get_column_headers(cls, duration):
+        return super().get_column_headers(duration)
 
-
-class GroupRelationTableModel(PeeweeTableModel):
     @classmethod
-    def get_db_model(cls):
-        return GroupRelationModel
+    def get_model_data(cls, duration):
+        return super().get_model_data(duration)
+
+    def _init_data(self, duration=None):
+        if duration is None:
+            duration = self.DEFAULT_DURATION
+        super()._init_data(duration)
+
+    def set_duration(self, duration):
+        self._init_data(duration)
+
+    def get_record_date(self, record):
+        # Assuming date will always be index 1.
+        return self.get_record_data(record, 1)
 
 
-class RecordTableModel(PeeweeTableModel):
-    @classmethod
-    def get_db_model(cls):
-        return RawRecordModel
+class SleepDurationTableModel(BaseDurationTableModel):
+    DB_MODEL = SleepDurationModel
+    DEFAULT_DURATION = DurationType.DAILY
+    DEFAULT_DATE_FILTER = DateFilter.Type.ONE_MONTH
+
+
+class FleshDurationTableModel(BaseDurationTableModel):
+    DB_MODEL = FleshDurationModel
+    DEFAULT_DURATION = DurationType.WEEKLY
+    DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH
+
+
+class RecordDurationTableModel(BaseDurationTableModel):
+    DB_MODEL = RecordDurationModel
+    DEFAULT_DURATION = DurationType.WEEKLY
+    DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH
+    HIDDEN_COLUMNS = []
+
+    def get_record_date(self, record):
+        return self.get_record_data(record, 0)

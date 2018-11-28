@@ -47,10 +47,12 @@ class FleshAdderPanel(QWidget):
         count = float(self.count_field.text())
 
         try:
-            count_after = FleshUtility.add(date, count)
-            self.owner.message_box.setText("{0}:  +{1}  -->  {2}".format(date, count, count_after))
+            result = FleshUtility.add(date, count)
         except ValueError as ex:
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
+        else:
+            self.owner.message_box.setText("{0}:  +{1}  -->  {2}\nWeek: {3}.  (Last week: {4})".format(
+                date, count, result['day'], result['week'], result['last_week']))
 
 
 if __name__ == "__main__":
