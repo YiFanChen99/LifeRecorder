@@ -179,35 +179,46 @@ class _Summarizer(object):
 
     class GroupSummarizer(object):
         @staticmethod
-        def dictionarize_extra(extras):
-            return {ExtraRecordType.from_value(extra.key): extra.value for extra in extras}
+        def _create_default_extra(group):
+            dict_ = {
+                ExtraRecordType.DESCRIPTION: [],
+                ExtraRecordType.MAGNITUDE: 0,
+                ExtraRecordType.SCALE: 1
+            }
+            if group.countable:
+                dict_[ExtraRecordType.MAGNITUDE] = 1
+            return dict_
 
         def __init__(self, group):
             super().__init__()
-            self._init_group_and_default_value(group)
+            self.group = group
             self.volume = 0
             self.descriptions = []
 
-        def _init_group_and_default_value(self, group):
-            self.group = group
-            self._default_magnitude = 0
-            self._default_scale = 1
-
-            if self.group.countable:
-                self._default_magnitude = 1
-
         def add(self, extras):
-            extra = self.dictionarize_extra(extras)
-            self.add_description(extra)
-            self.add_volume(extra)
+            extra = self._dictionarize_extra(extras)
+            self._add_description(extra)
+            self._add_volume(extra)
 
-        def add_description(self, extra):
-            if ExtraRecordType.DESCRIPTION in extra:
-                self.descriptions.append(extra[ExtraRecordType.DESCRIPTION])
+        def _dictionarize_extra(self, extras):
+            # init dict_
+            dict_ = self._create_default_extra(self.group)
 
-        def add_volume(self, extra):
-            magnitude = float(extra.get(ExtraRecordType.MAGNITUDE, self._default_magnitude))
-            scale = float(extra.get(ExtraRecordType.SCALE, self._default_scale))
+            # apply extras
+            for extra in extras:
+                type_ = ExtraRecordType.from_value(extra.key)
+                if type_ == ExtraRecordType.DESCRIPTION:
+                    dict_[type_].append(extra.value)
+                else:
+                    dict_[type_] = extra.value
+            return dict_
+
+        def _add_description(self, extra):
+            self.descriptions.extend(extra[ExtraRecordType.DESCRIPTION])
+
+        def _add_volume(self, extra):
+            magnitude = float(extra[ExtraRecordType.MAGNITUDE])
+            scale = float(extra[ExtraRecordType.SCALE])
             self.volume += magnitude * scale
 
         def __repr__(self):
