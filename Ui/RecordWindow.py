@@ -47,10 +47,9 @@ class RecordAdderPanel(QWidget):
     def reset_values(self):
         self.date.setDate(QDate.currentDate())
         self.group.setCurrentIndex(2)  # 休閒娛樂
-        self.extra.reset_values()
+        self.reset_extra()
 
-    def reset_values_partially(self):
-        self.group.setCurrentIndex(2)  # 休閒娛樂
+    def reset_extra(self):
         self.extra.reset_values()
 
     def add(self):
@@ -65,7 +64,7 @@ class RecordAdderPanel(QWidget):
         else:
             self.owner.message_box.setText("{0}, {1}:  +1  -->  {2}".format(
                 date, self.group.currentText(), RecordUtility.Basic.get_count(date, group_id)))
-            self.reset_values_partially()
+            self.reset_extra()
 
 
 class ExtraRecordList(QWidget):
