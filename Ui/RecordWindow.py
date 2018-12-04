@@ -6,7 +6,7 @@ from PyQt5.QtCore import QDate
 
 from Ui.Utility.Window import SimpleAdderWindow
 from Ui.Utility.Widget import DateEdit, MapComboBox
-from Model.DbTableModel.RecordModel import RecordUtility
+from Model.DbTableModel.RecordModel import RecordUtility, ExtraRecordType
 
 
 class RecordAdderWindow(SimpleAdderWindow):
@@ -99,8 +99,7 @@ class ExtraRecordList(QWidget):
         layout = QHBoxLayout()
         self.field_layout.addLayout(layout)
 
-        key_field = QComboBox()
-        key_field.addItems(RecordUtility.Extra.KEYS)
+        key_field = MapComboBox(ExtraRecordType)
         value_field = QLineEdit()
 
         fields = (layout, key_field, value_field)
@@ -119,7 +118,7 @@ class ExtraRecordList(QWidget):
         self.fields.remove(fields)
 
     def get_values(self):
-        return ((field[1].currentText(), field[2].text()) for field in self.fields if field[2].text())
+        return ((field[1].currentData(), field[2].text()) for field in self.fields if field[2].text())
 
 
 if __name__ == "__main__":

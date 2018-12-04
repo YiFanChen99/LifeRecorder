@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from enum import Enum
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import *
@@ -152,15 +153,21 @@ class DateEdit(QDateEdit):
 
 
 class MapComboBox(QComboBox):
-    def __init__(self, options, default_index=0):
-        """
-        options: {data: text} in dict or OrderedDict
-        """
+    def __init__(self, items, default_index=0):
         super().__init__()
 
-        for data, text in options.items():
-            self.addItem(text, data)
+        self._init_items(items)
         self.setCurrentIndex(default_index)
+
+    def _init_items(self, items):
+        if isinstance(items, (dict, OrderedDict)):
+            for data, text in items.items():
+                self.addItem(text, data)
+        elif issubclass(items, Enum):
+            for type_ in items:
+                self.addItem(type_.value, type_)
+        else:
+            raise ValueError
 
 
 class DateFilterComBox(MapComboBox):
@@ -168,8 +175,7 @@ class DateFilterComBox(MapComboBox):
         if not callable(callback):
             raise ValueError
 
-        options = OrderedDict((enum, enum.value) for enum in DateFilter.Type)
-        super().__init__(options, default_index=default_index)
+        super().__init__(DateFilter.Type, default_index=default_index)
 
         self.callback = callback
         self.currentIndexChanged.connect(self.notify)

@@ -51,8 +51,6 @@ class RecordUtility(object):
                 return 0
 
     class Extra:
-        KEYS = ['description', 'magnitude', 'scale']
-
         @staticmethod
         def create(basic_id, key, value):
             try:
@@ -60,7 +58,10 @@ class RecordUtility(object):
             except DoesNotExist:
                 raise ValueError('Basic id %d' % basic_id)
 
-            return ExtraRecord.create(basic_id=basic_id, key=key, value=value)
+            if not isinstance(key, ExtraRecordType):
+                raise TypeError('key: ', key)
+
+            return ExtraRecord.create(basic_id=basic_id, key=key.value, value=value)
 
 
 class RecordGroupModel(BaseModel):
@@ -179,16 +180,7 @@ class _Summarizer(object):
     class GroupSummarizer(object):
         @staticmethod
         def dictionarize_extra(extras):
-            enumize_extra_key = _Summarizer.GroupSummarizer.enumize_extra_key
-            dict_ = {enumize_extra_key(extra.key): extra.value for extra in extras}
-            return dict_
-
-        @staticmethod
-        def enumize_extra_key(key):
-            for type in ExtraRecordType:
-                if type.value == key:
-                    return type
-            raise KeyError
+            return {ExtraRecordType.from_value(extra.key): extra.value for extra in extras}
 
         def __init__(self, group):
             super().__init__()
@@ -231,6 +223,13 @@ class ExtraRecordType(Enum):
     DESCRIPTION = 'description'
     MAGNITUDE = 'magnitude'
     SCALE = 'scale'
+
+    @staticmethod
+    def from_value(value):
+        for type_ in ExtraRecordType:
+            if value == type_.value:
+                return type_
+        raise KeyError
 
 
 if __name__ == "__main__":
