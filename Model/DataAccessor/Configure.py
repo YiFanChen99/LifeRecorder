@@ -76,4 +76,6 @@ if __name__ == "__main__":
     unittest.main()
 else:
     dir_path = get_matched_dir(os.getcwd()) + os.sep + "Data" + os.sep
+
     config = Configure(dir_path)
+    alias = load_json(dir_path + "Alias.json")

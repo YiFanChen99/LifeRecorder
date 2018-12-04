@@ -1,0 +1,22 @@
+{
+  "SNHG_members": {
+    "rules": {
+      "王曉佳": ["王天草", "天草"],
+      "許楊玉琢": ["許楊"],
+      "李媛媛": ["媛媛"],
+      "段藝璇": ["DDD"]
+    },
+    "groups": [6, 7, 15]
+  },
+  "SNHG_show": {
+    "rules": {
+      "BEJ team B": ["team B"],
+      "BEJ team E": ["team E"],
+      "SNH team NII": ["team N"],
+      "SNH team HII": ["team H"],
+      "SNH team X": ["team X"],
+      "MC": ["mc"]
+    },
+    "groups": [6]
+  }
+}

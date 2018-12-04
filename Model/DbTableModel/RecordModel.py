@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from enum import Enum
 import datetime
+import re
 
 from Model.TimeUtility import get_week_start, get_month_start
 from Model import Utility
 from Model.DbTableModel.BaseModel import BaseModel, DurationType, DurationalColumnModel
 from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
 from Model.DataAccessor.DbTableAccessor import RecordGroup, BasicRecord, ExtraRecord, Timeline
+from Model.DataAccessor.Configure import alias
 
 
 class RecordUtility(object):
@@ -51,17 +53,37 @@ class RecordUtility(object):
                 return 0
 
     class Extra:
-        @staticmethod
-        def create(basic_id, key, value):
+        @classmethod
+        def create(cls, basic_id, key, value):
             try:
-                BasicRecord.get_by_id(basic_id)
+                basic = BasicRecord.get_by_id(basic_id)
             except DoesNotExist:
                 raise ValueError('Basic id %d' % basic_id)
 
             if not isinstance(key, ExtraRecordType):
                 raise TypeError('key: ', key)
 
+            value = value.strip()
+            if key is ExtraRecordType.DESCRIPTION:
+                value = cls._rephrase_alias(GROUP_ALIAS_RULES, basic.group_id_id, value)
             return ExtraRecord.create(basic_id=basic_id, key=key.value, value=value)
+
+        @staticmethod
+        def _rephrase_alias(group_rules, group_id, description):
+            result = description
+            # FIXME with sub_group_id
+            for name, rules in group_rules[group_id].items():
+                pattern = re.compile("|".join(rules), flags=re.IGNORECASE)
+                result = pattern.sub(name, result)
+            return result
+
+        @staticmethod
+        def get_alias_group_rules():
+            result = defaultdict(dict)
+            for rule_set in alias.values():
+                for group_id in rule_set['groups']:
+                    result[group_id].update(rule_set['rules'])
+            return result
 
 
 class RecordGroupModel(BaseModel):
@@ -241,6 +263,9 @@ class ExtraRecordType(Enum):
             if value == type_.value:
                 return type_
         raise KeyError
+
+
+GROUP_ALIAS_RULES = RecordUtility.Extra.get_alias_group_rules()
 
 
 if __name__ == "__main__":
