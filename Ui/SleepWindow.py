@@ -8,6 +8,7 @@ from Ui.Utility.Window import *
 from Ui.Utility.Widget import AlignHCLabel, DateEdit
 from Model import TimeUtility
 from Model.DbTableModel.SleepModel import SleepUtility
+from Model.DataAccessor.Configure import config
 
 
 class SleepAdderWindow(SimpleAdderWindow):
@@ -58,10 +59,11 @@ class SleepAdderPanel(QWidget):
 
     def reset_values(self):
         self.date.setDate(QDate.currentDate())
-        self.start_hour.setValue(1)
-        self.start_minute.setValue(0)
-        self.end_hour.setValue(13)
-        self.end_minute.setValue(30)
+        times = self.get_default_time_config(datetime.datetime.now())
+        self.start_hour.setValue(times[0])
+        self.start_minute.setValue(times[1])
+        self.end_hour.setValue(times[2])
+        self.end_minute.setValue(times[3])
 
     def add(self):
         date = self.date.get_date()
@@ -75,6 +77,17 @@ class SleepAdderPanel(QWidget):
                 TimeUtility.str_timedelta(feedback['after'])))
         except ValueError as ex:
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
+
+    @staticmethod
+    def get_default_time_config(current):
+        if not isinstance(current, datetime.datetime):
+            raise TypeError
+
+        time = config["sleep_time"]
+        if 13 <= current.hour <= 14:
+            return time["nap"]
+        else:
+            return time["default"]
 
 
 if __name__ == "__main__":
