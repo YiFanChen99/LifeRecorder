@@ -37,20 +37,27 @@ class RecordGroup(BaseModel):
     countable = BooleanField(null=False)
 
     def __getattr__(self, item):
-        if item == 'parents':
-            return tuple(relation.parent for relation in self.parent)
+        if item == 'parent':
+            try:
+                # Except at most one parent
+                return self._parent[0].parent
+            except IndexError:
+                return None
         elif item == 'children':
-            return tuple(relation.child for relation in self.child)
+            return tuple(relation.child for relation in self._child)
         else:
             return super().__getattr__(item)
 
-    def __repr__(self):
+    def __str__(self):
         return "{0}-{1}".format(self.id, self.description)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class GroupRelation(BaseModel):
-    parent = ForeignKeyField(RecordGroup, backref='child')
-    child = ForeignKeyField(RecordGroup, backref='parent')
+    parent = ForeignKeyField(RecordGroup, backref='_child')
+    child = ForeignKeyField(RecordGroup, backref='_parent')
 
 
 class BasicRecord(BaseModel):

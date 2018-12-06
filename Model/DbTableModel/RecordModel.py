@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from enum import Enum
 import datetime
 import re
@@ -10,21 +10,34 @@ from Model import Utility
 from Model.DbTableModel.BaseModel import BaseModel, DurationType, DurationalColumnModel
 from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
 from Model.DataAccessor.DbTableAccessor import RecordGroup, BasicRecord, ExtraRecord, Timeline
-from Model.DataAccessor.Configure import alias
+from Model.DataAccessor.Configure import group_alias_rules
 
 
 class RecordUtility(object):
     class Group(object):
-        @staticmethod
-        def get_id_description_map():
-            return OrderedDict((group.id, group.description) for group in RecordGroup.select())
+        # cache, should be updated on DB changed
+        _record_groups = {group.id: group for group in RecordGroup.select()}
 
-        @staticmethod
-        def get_id_by_description(description):
+        @classmethod
+        def get_description(cls):
+            return map(lambda record: record.description, cls._record_groups.values())
+
+        @classmethod
+        def get_id_description_map(cls):
+            return OrderedDict((id_, record.description)
+                               for id_, record in cls._record_groups.items())
+
+        @classmethod
+        def get_id_by_description(cls, description):
             try:
-                return next((group.id for group in RecordGroup.select() if group.description == description))
+                return next((id_ for id_, record in cls._record_groups.items()
+                             if record.description == description))
             except StopIteration:
                 raise KeyError(description)
+
+        @classmethod
+        def get_parent(cls, current_id):
+            return cls._record_groups[current_id].parent
 
     class Basic:
         @staticmethod
@@ -65,25 +78,24 @@ class RecordUtility(object):
 
             value = value.strip()
             if key is ExtraRecordType.DESCRIPTION:
-                value = cls._rephrase_alias(GROUP_ALIAS_RULES, basic.group_id_id, value)
+                value = cls._rephrase_alias(basic.group_id_id, value)
             return ExtraRecord.create(basic_id=basic_id, key=key.value, value=value)
 
         @staticmethod
-        def _rephrase_alias(group_rules, group_id, description):
+        def _rephrase_alias(group_id, description):
             result = description
-            # FIXME with sub_group_id
-            for name, rules in group_rules[group_id].items():
+
+            # rephrase by my rules
+            for name, rules in group_alias_rules[group_id].items():
                 pattern = re.compile("|".join(rules), flags=re.IGNORECASE)
                 result = pattern.sub(name, result)
-            return result
 
-        @staticmethod
-        def get_alias_group_rules():
-            result = defaultdict(dict)
-            for rule_set in alias.values():
-                for group_id in rule_set['groups']:
-                    result[group_id].update(rule_set['rules'])
-            return result
+            try:
+                # rephrase by ancestors's rules
+                parent_id = RecordUtility.Group.get_parent(group_id).id
+                return RecordUtility.Extra._rephrase_alias(parent_id, result)
+            except AttributeError:
+                return result
 
 
 class RecordGroupModel(BaseModel):
@@ -91,7 +103,7 @@ class RecordGroupModel(BaseModel):
 
     @classmethod
     def get_column_names(cls):
-        return ['id', 'description', 'children', 'parents']
+        return ['id', 'description', 'children', 'parent']
 
     @classmethod
     def get_data(cls, *args):
@@ -111,7 +123,7 @@ class RecordDurationModel(DurationalColumnModel):
             columns = ['month']
         else:
             raise KeyError
-        columns.extend(RecordUtility.Group.get_id_description_map().values())
+        columns.extend(RecordUtility.Group.get_description())
         return columns
 
     @classmethod
@@ -263,9 +275,6 @@ class ExtraRecordType(Enum):
             if value == type_.value:
                 return type_
         raise KeyError
-
-
-GROUP_ALIAS_RULES = RecordUtility.Extra.get_alias_group_rules()
 
 
 if __name__ == "__main__":

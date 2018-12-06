@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import unittest
+from collections import defaultdict
 
 from Model.DataAccessor.JsonAccessor.JsonAccessor import load_json, save_json
 
@@ -71,11 +72,23 @@ class _Test(unittest.TestCase):
             self.assert_get_matched_dir(self.EXPECT, project_dir_name="AAA")
 
 
+def _convert_alias_group_rules(raw_alias):
+    result = defaultdict(dict)
+    for rule_set in raw_alias.values():
+        for group_id in rule_set['groups']:
+            result[group_id].update(rule_set['rules'])
+    return result
+
+
 config = {}
+group_alias_rules = {}
+
 if __name__ == "__main__":
     unittest.main()
 else:
     dir_path = get_matched_dir(os.getcwd()) + os.sep + "Data" + os.sep
 
     config = Configure(dir_path)
-    alias = load_json(dir_path + "Alias.json")
+
+    raw = load_json(dir_path + "Alias.json")
+    group_alias_rules = _convert_alias_group_rules(raw)
