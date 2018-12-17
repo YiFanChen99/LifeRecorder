@@ -74,18 +74,10 @@ class RecordUtility(object):
                     basic_id = RecordUtility.Basic.create(date, group_id)
                     for extra in extras:
                         RecordUtility.Extra.create(basic_id, extra[0], extra[1])
+                    return basic_id
                 except ValueError as ex:
                     txn.rollback()
                     raise ex
-
-        @staticmethod
-        def get_count(date, group_id):
-            try:
-                date_id = Utility.get_or_create_date_id(date)
-                return BasicRecord.select().where(BasicRecord.date_id == date_id,
-                                                  BasicRecord.group_id == group_id).count()
-            except (DoesNotExist, IndexError):
-                return 0
 
     class Extra:
         @classmethod

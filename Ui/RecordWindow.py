@@ -58,12 +58,12 @@ class RecordAdderPanel(QWidget):
         extras = self.extra.get_values()
 
         try:
-            RecordUtility.Basic.create_with_extras(date, group_id, extras)
+            basic = RecordUtility.Basic.create_with_extras(date, group_id, extras)
         except ValueError as ex:
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
         else:
-            self.owner.message_box.setText("{0}, {1}:  +1  -->  {2}".format(
-                date, self.group.currentText().strip(), RecordUtility.Basic.get_count(date, group_id)))
+            self.owner.message_box.setText("{0}, {1}:  {2}".format(
+                date, basic.group_id.description, basic.joined_extra))
             self.reset_extra()
 
 

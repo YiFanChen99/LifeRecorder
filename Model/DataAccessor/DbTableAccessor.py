@@ -79,11 +79,18 @@ class BasicRecord(BaseModel):
     date_id = ForeignKeyField(Timeline, backref='record')
     group_id = ForeignKeyField(RecordGroup, backref='basic')
 
+    @property
+    def joined_extra(self):
+        return ", ".join(repr(extra) for extra in self.extra)
+
 
 class ExtraRecord(BaseModel):
     basic_id = ForeignKeyField(BasicRecord, backref='extra')
     key = TextField(null=False)
     value = TextField(null=False)
+
+    def __repr__(self):
+        return "%s:%s" % (self.key[0:3], self.value)
 
 
 _test_data = {
