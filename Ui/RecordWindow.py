@@ -46,8 +46,7 @@ class RecordAdderPanel(QWidget):
 
     def reset_values(self):
         self.date.setDate(QDate.currentDate())
-        index = self.group.findData(3)  # 休閒娛樂
-        self.group.setCurrentIndex(index)
+        self.group.setCurrentData(3)  # 休閒娛樂
         self.reset_extra()
 
     def reset_extra(self):
@@ -122,10 +121,68 @@ class ExtraRecordList(QWidget):
         return ((field[1].currentData(), field[2].text()) for field in self.fields if field[2].text())
 
 
+class RecordGroupAdderWindow(SimpleAdderWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.resize(280, 150)
+        self.setWindowTitle("Group Adder")
+
+    def _create_main_panel(self):
+        return RecordGroupAdderPanel(self)
+
+
+class RecordGroupAdderPanel(QWidget):
+    def __init__(self, owner):
+        super().__init__()
+        self.owner = owner
+        self._init_layout()
+
+    def _init_layout(self):
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        form = QFormLayout()
+        form.setSpacing(10)
+        layout.addLayout(form)
+
+        self.description = QLineEdit()
+        form.addRow("Description:", self.description)
+        self.countable = QCheckBox()
+        form.addRow("Countable:", self.countable)
+        self.parent_group = RecordGroupComboBox(with_root=True)
+        form.addRow("Parent:", self.parent_group)
+
+    def reset_values(self):
+        self.reset_properties()
+        self.parent_group.setCurrentData(3)
+
+    def reset_properties(self):
+        self.description.setText("")
+        self.countable.setChecked(False)
+
+    def add(self):
+        description = self.description.text()
+        countable = self.countable.isChecked()
+        parent_id = self.parent_group.currentData()
+
+        try:
+            group = RecordUtility.Group.add(description, countable, parent_id)
+        except ValueError as ex:
+            self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
+        else:
+            self.owner.message_box.setText(
+                "{0} has been created under {1}.".format(
+                    group, self.parent_group.currentText()))
+
+            self.reset_properties()
+            self.parent_group.insert_item_by_group(group)
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    window = RecordAdderWindow()
+    window = RecordGroupAdderWindow()
     window.show()
 
     app.exec_()

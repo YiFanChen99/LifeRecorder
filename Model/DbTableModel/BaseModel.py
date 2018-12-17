@@ -4,7 +4,7 @@ from enum import Enum
 from collections import OrderedDict
 import unittest
 
-from Model.DataAccessor.DbTableAccessor import IntegrityError, fn
+from Model.DataAccessor.DbTableAccessor import fn, create
 
 
 class BaseModel(object):
@@ -45,10 +45,7 @@ class BaseModel(object):
         if not cls.ACCESSOR:
             raise NotImplementedError
 
-        try:
-            cls.ACCESSOR.create(**kwargs)
-        except IntegrityError as ex:
-            raise ValueError("IntegrityError") from ex
+        return create(cls.ACCESSOR, **kwargs)
 
 
 class DurationType(Enum):

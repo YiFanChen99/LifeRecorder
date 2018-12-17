@@ -11,6 +11,13 @@ def atomic():
     return db.atomic()
 
 
+def create(model, **kwargs):
+    try:
+        return model.create(**kwargs)
+    except IntegrityError as ex:
+        raise ValueError("IntegrityError") from ex
+
+
 class Timeline(BaseModel):
     date = DateField(default=datetime.date.today)
 
@@ -53,6 +60,14 @@ class RecordGroup(BaseModel):
 
     def __repr__(self):
         return self.__str__()
+
+    @property
+    def level(self):
+        """ Base-group is level 0. """
+        if len(self._parent) == 0:
+            return 0
+        else:
+            return self.parent.level + 1
 
 
 class GroupRelation(BaseModel):

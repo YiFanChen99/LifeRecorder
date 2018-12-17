@@ -8,8 +8,8 @@ import re
 from Model.TimeUtility import get_week_start, get_month_start
 from Model import Utility
 from Model.DbTableModel.BaseModel import BaseModel, DurationType, DurationalColumnModel
-from Model.DataAccessor.DbTableAccessor import atomic, DoesNotExist
-from Model.DataAccessor.DbTableAccessor import RecordGroup, BasicRecord, ExtraRecord, Timeline
+from Model.DataAccessor.DbTableAccessor import atomic, create, DoesNotExist
+from Model.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation, BasicRecord, ExtraRecord, Timeline
 from Model.DataAccessor.Configure import group_alias_rules
 
 
@@ -17,6 +17,10 @@ class RecordUtility(object):
     class Group(object):
         # cache, should be updated on DB changed
         _record_groups = {group.id: group for group in RecordGroup.select()}
+
+        @classmethod
+        def update_cache(cls):
+            cls._record_groups = {group.id: group for group in RecordGroup.select()}
 
         @classmethod
         def get_description(cls):
@@ -38,6 +42,24 @@ class RecordUtility(object):
         @classmethod
         def get_parent(cls, current_id):
             return cls._record_groups[current_id].parent
+
+        @classmethod
+        def add(cls, description, countable, parent_id=-1):
+            with atomic() as transaction:
+                try:
+                    group = RecordGroupModel.create(
+                        description=description, countable=countable)
+                    if parent_id != -1:
+                        cls._add_relation(parent_id, group)
+                except ValueError as ex:
+                    transaction.rollback()
+                    raise ex
+            cls.update_cache()
+            return group
+
+        @classmethod
+        def _add_relation(cls, parent_id, child_group):
+            create(GroupRelation, parent=parent_id, child=child_group)
 
     class Basic:
         @staticmethod

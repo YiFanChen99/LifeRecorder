@@ -6,7 +6,7 @@ from Model.TableViewModel import SleepTableModel, RecordGroupTableModel
 from Model.TableViewModel import SleepDurationTableModel, FleshDurationTableModel, RecordDurationTableModel
 from Ui.FleshWindow import FleshAdderWindow
 from Ui.SleepWindow import SleepAdderWindow
-from Ui.RecordWindow import RecordAdderWindow
+from Ui.RecordWindow import RecordAdderWindow, RecordGroupAdderWindow
 from Ui.Utility.Panel import BaseVBoxPanel, TableViewable, RightClickable, Addable
 from Ui.Utility.Widget import DurationGroup, DateFilterComBox
 
@@ -46,7 +46,7 @@ class SleepTablePanel(BaseMainTablePanel):
 
 class RecordGroupTablePanel(BaseMainTablePanel):
     SOURCE_MODEL = RecordGroupTableModel()
-    ADDER_WINDOW_CLASS = None
+    ADDER_WINDOW_CLASS = RecordGroupAdderWindow
 
 
 class DurationTablePanel(BaseMainTablePanel):

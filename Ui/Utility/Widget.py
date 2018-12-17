@@ -153,12 +153,21 @@ class DateEdit(QDateEdit):
         self.setCurrentSectionIndex(2)
 
 
-class MapComboBox(QComboBox):
-    def __init__(self, items, default_index=0):
+class BaseComboBox(QComboBox):
+    def __init__(self, default_index=0):
         super().__init__()
-
-        self._init_items(items)
         self.setCurrentIndex(default_index)
+
+    # noinspection PyPep8Naming
+    def setCurrentData(self, data):
+        index = self.findData(data)
+        self.setCurrentIndex(index)
+
+
+class MapComboBox(BaseComboBox):
+    def __init__(self, items, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._init_items(items)
 
     def _init_items(self, items):
         if isinstance(items, (dict, OrderedDict)):
@@ -172,11 +181,11 @@ class MapComboBox(QComboBox):
 
 
 class DateFilterComBox(MapComboBox):
-    def __init__(self, callback, default_index=3):
+    def __init__(self, callback, default_index=3, *args, **kwargs):
         if not callable(callback):
             raise ValueError
 
-        super().__init__(DateFilter.Type, default_index=default_index)
+        super().__init__(DateFilter.Type, default_index=default_index, *args, **kwargs)
 
         self.callback = callback
         self.currentIndexChanged.connect(self.notify)
@@ -253,21 +262,40 @@ class DurationGroup(QWidget):
         return action
 
 
-class RecordGroupComboBox(QComboBox):
+class RecordGroupComboBox(BaseComboBox):
     """ Faking a un-collapse tree-view like menu. """
-    def __init__(self, default_index=0):
-        super().__init__()
+    ROOT_DESCRIPTION = "-"
 
-        self._init_items()
-        self.setCurrentIndex(default_index)
+    def __init__(self, with_root=False, *args, **kwargs):
+        """
+        :param with_root: When True, adding root on top of menu with data=-1.
+        """
+        super().__init__(*args, **kwargs)
 
-    def _init_items(self):
+        self._init_items(with_root)
+
+    def _init_items(self, with_root):
+        if with_root:
+            self.addItem(self.ROOT_DESCRIPTION, -1)
+
         root = RecordGroupTreeModel.get_tree()
         for level0 in root.children:
-            self.addItem(level0, 0)
+            self._add_item_by_node(level0, 0)
 
-    def addItem(self, node, level):
-        indent = ''.join(["　"] * level)
-        super().addItem(indent + node.description, node.id)
+    def insert_item_by_group(self, group):
+        # Find last sibling's position, +1 to insert after
+        children = group.parent.children
+        node_appended = group.parent if len(children) <= 1 else children[-2]
+        index = self.findData(node_appended.id) + 1
+
+        self.insertItem(index, *self.text_and_data(group, group.level))
+
+    def _add_item_by_node(self, node, level):
+        self.addItem(*self.text_and_data(node, level))
         for child in node.children:
-            self.addItem(child, level + 1)
+            self._add_item_by_node(child, level + 1)
+
+    @staticmethod
+    def text_and_data(item, indent_level):
+        indent = ''.join(["　"] * indent_level)
+        return indent + item.description, item.id
