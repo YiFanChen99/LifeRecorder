@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate
 
 from Ui.Utility.Window import SimpleAdderWindow
-from Ui.Utility.Widget import DateEdit, MapComboBox
+from Ui.Utility.Widget import DateEdit, MapComboBox, RecordGroupComboBox
 from Model.DbTableModel.RecordModel import RecordUtility, ExtraRecordType
 
 
@@ -37,7 +37,7 @@ class RecordAdderPanel(QWidget):
 
         self.date = DateEdit()
         form.addRow("Date:", self.date)
-        self.group = MapComboBox(RecordUtility.Group.get_id_description_map())
+        self.group = RecordGroupComboBox()
         form.addRow("Group:", self.group)
 
         ''' Extra record '''
@@ -46,7 +46,8 @@ class RecordAdderPanel(QWidget):
 
     def reset_values(self):
         self.date.setDate(QDate.currentDate())
-        self.group.setCurrentIndex(2)  # 休閒娛樂
+        index = self.group.findData(3)  # 休閒娛樂
+        self.group.setCurrentIndex(index)
         self.reset_extra()
 
     def reset_extra(self):
@@ -63,7 +64,7 @@ class RecordAdderPanel(QWidget):
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
         else:
             self.owner.message_box.setText("{0}, {1}:  +1  -->  {2}".format(
-                date, self.group.currentText(), RecordUtility.Basic.get_count(date, group_id)))
+                date, self.group.currentText().strip(), RecordUtility.Basic.get_count(date, group_id)))
             self.reset_extra()
 
 

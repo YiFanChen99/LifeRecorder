@@ -3,10 +3,11 @@
 from collections import OrderedDict
 from enum import Enum
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 from Model.DbTableModel.BaseModel import DurationType
+from Model.TreeViewModel import RecordGroupTreeModel
 from Model.Utility import DateFilter
 
 
@@ -250,3 +251,23 @@ class DurationGroup(QWidget):
         action.setCheckable(True)
         action.triggered.connect(lambda: self.notify(callback_key))
         return action
+
+
+class RecordGroupComboBox(QComboBox):
+    """ Faking a un-collapse tree-view like menu. """
+    def __init__(self, default_index=0):
+        super().__init__()
+
+        self._init_items()
+        self.setCurrentIndex(default_index)
+
+    def _init_items(self):
+        root = RecordGroupTreeModel.get_tree()
+        for level0 in root.children:
+            self.addItem(level0, 0)
+
+    def addItem(self, node, level):
+        indent = ''.join(["　"] * level)
+        super().addItem(indent + node.description, node.id)
+        for child in node.children:
+            self.addItem(child, level + 1)
