@@ -92,7 +92,7 @@ class DurationTablePanel(BaseMainTablePanel):
     def init_source_model(self):
         super().init_source_model()
 
-        self.set_date_filter(self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
+        self.date_filter.setCurrentIndex(self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
 
 
 class SleepDurationTablePanel(DurationTablePanel):
