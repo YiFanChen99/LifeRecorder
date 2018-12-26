@@ -83,7 +83,7 @@ class ExtraRecordList(QWidget):
         self.layout().addLayout(self.toolbar_layout)
 
         self.btn_add = QPushButton("Add")
-        self.btn_add.clicked.connect(self.add_field)
+        self.btn_add.clicked.connect(lambda: self.add_field())
         self.toolbar_layout.addWidget(self.btn_add)
 
     def _init_field_layout(self):
@@ -93,13 +93,16 @@ class ExtraRecordList(QWidget):
     def reset_values(self):
         for field in self.fields[:]:
             self.remove_field(field)
-        self.add_field()
 
-    def add_field(self):
+        self.add_field(ExtraRecordType.DESCRIPTION)
+        self.add_field(ExtraRecordType.MAGNITUDE)
+        self.add_field(ExtraRecordType.SCALE)
+
+    def add_field(self, index_data=ExtraRecordType.DESCRIPTION):
         layout = QHBoxLayout()
         self.field_layout.addLayout(layout)
 
-        key_field = MapComboBox(ExtraRecordType)
+        key_field = MapComboBox(items_config=ExtraRecordType, default_index_data=index_data)
         value_field = QLineEdit()
 
         fields = (layout, key_field, value_field)

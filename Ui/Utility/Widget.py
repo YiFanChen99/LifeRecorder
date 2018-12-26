@@ -140,7 +140,7 @@ class DateEdit(QDateEdit):
     FORMAT = "yyyy-MM-dd"
 
     def __init__(self, *args):
-        super(DateEdit, self).__init__(*args, displayFormat=DateEdit.FORMAT, calendarPopup=True)
+        super().__init__(*args, displayFormat=DateEdit.FORMAT, calendarPopup=True)
 
     def get_date(self):
         return self.date().toPyDate()
@@ -154,9 +154,13 @@ class DateEdit(QDateEdit):
 
 
 class BaseComboBox(QComboBox):
-    def __init__(self, default_index=0):
+    def __init__(self, items_config=None, default_index=0, default_index_data=None):
         super().__init__()
-        self.setCurrentIndex(default_index)
+        self._init_items(items_config)
+        if default_index_data:
+            self.setCurrentData(default_index_data)
+        else:
+            self.setCurrentIndex(default_index)
 
     # noinspection PyPep8Naming
     def setCurrentData(self, data):
@@ -165,39 +169,27 @@ class BaseComboBox(QComboBox):
 
 
 class MapComboBox(BaseComboBox):
-    def __init__(self, items, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._init_items(items)
-
-    def _init_items(self, items):
-        if isinstance(items, (dict, OrderedDict)):
-            for data, text in items.items():
+    def _init_items(self, config):
+        if isinstance(config, (dict, OrderedDict)):
+            for data, text in config.items():
                 self.addItem(text, data)
-        elif issubclass(items, Enum):
-            for type_ in items:
+        elif issubclass(config, Enum):
+            for type_ in config:
                 self.addItem(type_.value, type_)
         else:
             raise ValueError
 
 
 class DateFilterComBox(MapComboBox):
-    def __init__(self, callback, default_index=3, *args, **kwargs):
+    def __init__(self, callback, *args, default_index_data=DateFilter.Type.NO, **kwargs):
         if not callable(callback):
             raise ValueError
 
-        super().__init__(DateFilter.Type, default_index=default_index, *args, **kwargs)
+        super().__init__(*args, items_config=DateFilter.Type,
+                         default_index_data=default_index_data, **kwargs)
 
         self.callback = callback
         self.currentIndexChanged.connect(self.notify)
-
-    # noinspection PyTypeChecker
-    def setCurrentIndex(self, index):
-        """
-        :param index: index or instance of DateFilter.Type
-        """
-        if isinstance(index, DateFilter.Type):
-            index = list(DateFilter.Type).index(index)
-        super().setCurrentIndex(index)
 
     def notify(self):
         self.callback(self.currentData())
@@ -266,13 +258,11 @@ class RecordGroupComboBox(BaseComboBox):
     """ Faking a un-collapse tree-view like menu. """
     ROOT_DESCRIPTION = "-"
 
-    def __init__(self, with_root=False, *args, **kwargs):
+    def __init__(self, *args, with_root=False, **kwargs):
         """
         :param with_root: When True, adding root on top of menu with data=-1.
         """
-        super().__init__(*args, **kwargs)
-
-        self._init_items(with_root)
+        super().__init__(*args, items_config=with_root, **kwargs)
 
     def _init_items(self, with_root):
         if with_root:

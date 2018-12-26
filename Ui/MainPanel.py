@@ -73,7 +73,7 @@ class DurationTablePanel(BaseMainTablePanel):
         self.menu_bar.addWidget(self.duration_group, 7)
 
         self.date_filter = DateFilterComBox(
-            self.set_date_filter, default_index=self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
+            self.set_date_filter, default_index_data=self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
         self.menu_bar.addWidget(self.date_filter, 2)
 
     def set_duration(self, duration):
@@ -92,7 +92,7 @@ class DurationTablePanel(BaseMainTablePanel):
     def init_source_model(self):
         super().init_source_model()
 
-        self.date_filter.setCurrentIndex(self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
+        self.date_filter.setCurrentData(self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
 
 
 class SleepDurationTablePanel(DurationTablePanel):
