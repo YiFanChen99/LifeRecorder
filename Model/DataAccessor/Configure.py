@@ -76,7 +76,8 @@ def _convert_alias_group_rules(raw_alias):
     result = defaultdict(dict)
     for rule_set in raw_alias.values():
         for group_id in rule_set['groups']:
-            result[group_id].update(rule_set['rules'])
+            for sub_rule_set in rule_set['rule_categories'].values():
+                result[group_id].update(sub_rule_set)
     return result
 
 
