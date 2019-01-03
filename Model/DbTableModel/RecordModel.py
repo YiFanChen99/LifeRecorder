@@ -4,6 +4,7 @@ from collections import OrderedDict
 from enum import Enum
 import datetime
 import re
+import unittest
 
 from Model.TimeUtility import get_week_start, get_month_start
 from Model import Utility
@@ -44,11 +45,10 @@ class RecordUtility(object):
             return cls._record_groups[current_id].parent
 
         @classmethod
-        def add(cls, description, countable, parent_id=-1):
+        def add(cls, description, parent_id=-1):
             with atomic() as transaction:
                 try:
-                    group = RecordGroupModel.create(
-                        description=description, countable=countable)
+                    group = RecordGroupModel.create(description=description)
                     if parent_id != -1:
                         cls._add_relation(parent_id, group)
                 except ValueError as ex:
@@ -227,30 +227,13 @@ class _Summarizer(object):
 
     class GroupSummarizer(object):
         @staticmethod
-        def _create_default_extra(group):
+        def _dictionarize_extra(extras):
+            # init dict_
             dict_ = {
                 ExtraRecordType.DESCRIPTION: [],
                 ExtraRecordType.MAGNITUDE: 0,
                 ExtraRecordType.SCALE: 1
             }
-            if group.countable:
-                dict_[ExtraRecordType.MAGNITUDE] = 1
-            return dict_
-
-        def __init__(self, group):
-            super().__init__()
-            self.group = group
-            self.volume = 0
-            self.descriptions = []
-
-        def add(self, extras):
-            extra = self._dictionarize_extra(extras)
-            self._add_description(extra)
-            self._add_volume(extra)
-
-        def _dictionarize_extra(self, extras):
-            # init dict_
-            dict_ = self._create_default_extra(self.group)
 
             # apply extras
             for extra in extras:
@@ -261,21 +244,67 @@ class _Summarizer(object):
                     dict_[type_] = extra.value
             return dict_
 
-        def _add_description(self, extra):
-            self.descriptions.extend(extra[ExtraRecordType.DESCRIPTION])
+        def __init__(self, group):
+            super().__init__()
+            self.group = group
+            self.description_groups = []
 
-        def _add_volume(self, extra):
-            magnitude = float(extra[ExtraRecordType.MAGNITUDE])
-            scale = float(extra[ExtraRecordType.SCALE])
-            self.volume += magnitude * scale
+        def add(self, extras):
+            extra_dict = self._dictionarize_extra(extras)
+            extra = _Summarizer.DescriptionSummarizer(extra_dict)
+
+            try:
+                matched = next(filter(lambda old: old == extra, self.description_groups))
+                matched += extra
+            except StopIteration:
+                self.description_groups.append(extra)
 
         def __repr__(self):
-            repr_ = []
-            if self.volume > 0:
-                repr_.append("%.1f" % self.volume)
+            return '.  '.join(str(each) for each in self.description_groups)
+
+    class DescriptionSummarizer(object):
+        def __init__(self, extra_dict):
+            super().__init__()
+            self.volume = 0
+            self.times = 0
+            self.descriptions = extra_dict[ExtraRecordType.DESCRIPTION]
+
+            magnitude = float(extra_dict[ExtraRecordType.MAGNITUDE])
+            scale = float(extra_dict[ExtraRecordType.SCALE])
+            volume = magnitude * scale
+            self.add(volume)
+
+        def __eq__(self, other):
+            if len(self.descriptions) != len(other.descriptions):
+                return False
+            return all((desc_ in other.descriptions for desc_ in self.descriptions))
+
+        def __ne__(self, other):
+            return not self.__eq__(other)
+
+        def __iadd__(self, other):
+            self.volume += other.volume
+            self.times += other.times
+            return self
+
+        def add(self, volume):
+            if volume > 0:
+                self.volume += volume
+            else:
+                self.times += 1
+
+        def __str__(self):
+            if self.volume > 0 and self.times > 0:
+                count = "(%.1f+%d)" % (self.volume, self.times)
+            elif self.volume > 0:
+                count = "%.1f" % self.volume
+            else:  # self.times > 0
+                count = "%d" % self.times
+
             if self.descriptions:
-                repr_.append(', '.join(self.descriptions))
-            return '. '.join(repr_)
+                return count + "*" + repr(self.descriptions)
+            else:
+                return count
 
 
 class ExtraRecordType(Enum):
@@ -291,5 +320,48 @@ class ExtraRecordType(Enum):
         raise KeyError
 
 
+class _DescriptionSummarizerTest(unittest.TestCase):
+    @staticmethod
+    def create_description_summarizer(desc, magn=0, scal=1):
+        return _Summarizer.DescriptionSummarizer({
+            ExtraRecordType.DESCRIPTION: desc,
+            ExtraRecordType.MAGNITUDE: magn,
+            ExtraRecordType.SCALE: scal
+        })
+
+    def test_equality(self):
+        obj_99_1 = self.create_description_summarizer(['99'], scal=1)
+        self.assertTrue(obj_99_1 == obj_99_1)
+
+        obj_99_5 = self.create_description_summarizer(['99'], scal=5)
+        self.assertTrue(obj_99_1 == obj_99_5)
+
+        obj_99_k_2 = self.create_description_summarizer(['99', 'k'], magn=2)
+        self.assertFalse(obj_99_1 == obj_99_k_2)
+
+        obj_k_99_4 = self.create_description_summarizer(['k', '99'], magn=4)
+        self.assertFalse(obj_99_k_2 != obj_k_99_4)
+
+    def test_addition(self):
+        obj_99_v0 = self.create_description_summarizer(['99'])
+        self.assertEqual(0, obj_99_v0.volume)
+        self.assertEqual(1, obj_99_v0.times)
+        obj_99_k_v0 = self.create_description_summarizer(['99', 'k'])
+        self.assertEqual(0, obj_99_k_v0.volume)
+        self.assertEqual(1, obj_99_k_v0.times)
+
+        obj_99_v0 += obj_99_k_v0
+        self.assertEqual(0, obj_99_v0.volume)
+        self.assertEqual(2, obj_99_v0.times)
+
+        obj_99_k_v3 = self.create_description_summarizer(['99', 'k'], magn=3)
+        self.assertEqual(3, obj_99_k_v3.volume)
+        self.assertEqual(0, obj_99_k_v3.times)
+
+        obj_99_v0 += obj_99_k_v3
+        self.assertEqual(3, obj_99_v0.volume)
+        self.assertEqual(2, obj_99_v0.times)
+
+
 if __name__ == "__main__":
-    pass
+    unittest.main()

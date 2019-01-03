@@ -151,8 +151,6 @@ class RecordGroupAdderPanel(QWidget):
 
         self.description = QLineEdit()
         form.addRow("Description:", self.description)
-        self.countable = QCheckBox()
-        form.addRow("Countable:", self.countable)
         self.parent_group = RecordGroupComboBox(with_root=True)
         form.addRow("Parent:", self.parent_group)
 
@@ -162,15 +160,13 @@ class RecordGroupAdderPanel(QWidget):
 
     def reset_properties(self):
         self.description.setText("")
-        self.countable.setChecked(False)
 
     def add(self):
         description = self.description.text()
-        countable = self.countable.isChecked()
         parent_id = self.parent_group.currentData()
 
         try:
-            group = RecordUtility.Group.add(description, countable, parent_id)
+            group = RecordUtility.Group.add(description, parent_id)
         except ValueError as ex:
             self.owner.message_box.setText("Failed. (ValueError: %s)" % str(ex))
         else:

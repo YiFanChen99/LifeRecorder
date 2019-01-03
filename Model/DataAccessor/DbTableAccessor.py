@@ -41,7 +41,6 @@ class SleepDateView(BaseModel):
 class RecordGroup(BaseModel):
     description = TextField(unique=True)
     alias = TextField(null=True)
-    countable = BooleanField(null=False)
 
     def __getattr__(self, item):
         if item == 'parent':
