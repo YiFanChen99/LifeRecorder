@@ -93,6 +93,7 @@ class DurationTablePanel(BaseMainTablePanel):
         super().init_source_model()
 
         self.date_filter.setCurrentData(self.SOURCE_MODEL.DEFAULT_DATE_FILTER)
+        self.date_filter.notify()
 
 
 class SleepDurationTablePanel(DurationTablePanel):
