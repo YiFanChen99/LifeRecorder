@@ -19,7 +19,7 @@ def create(model, **kwargs):
 
 
 class Timeline(BaseModel):
-    date = DateField(default=datetime.date.today)
+    date = DateField(unique=True, default=datetime.date.today)
 
 
 class Flesh(BaseModel):
@@ -28,8 +28,8 @@ class Flesh(BaseModel):
 
 
 class Sleep(BaseModel):
-    start = DateTimeField()
-    end = DateTimeField()
+    start = DateTimeField(unique=True)
+    end = DateTimeField(unique=True)
 
 
 class SleepDateView(BaseModel):
