@@ -162,8 +162,8 @@ class FleshDurationTableModel(BaseDurationTableModel):
 
 class RecordDurationTableModel(BaseDurationTableModel):
     DB_MODEL = RecordDurationModel
-    DEFAULT_DURATION = DurationType.WEEKLY
-    DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH
+    DEFAULT_DURATION = DurationType.DAILY
+    DEFAULT_DATE_FILTER = DateFilter.Type.ONE_MONTH
     HIDDEN_COLUMNS = []
 
     def get_record_date(self, record):

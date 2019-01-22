@@ -15,7 +15,7 @@ class BaseModel(object):
     def get_column_names(cls, *args):
         """
         Can easily be implemented with cls._default_columns().
-        Should add doctest for readibility.
+        Should add doctest for readability.
         """
         raise NotImplementedError()
 
