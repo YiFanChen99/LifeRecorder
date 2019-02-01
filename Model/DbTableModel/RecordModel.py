@@ -232,7 +232,9 @@ class _Summarizer(object):
             dict_ = {
                 ExtraRecordType.DESCRIPTION: [],
                 ExtraRecordType.MAGNITUDE: 0,
-                ExtraRecordType.SCALE: 1
+                ExtraRecordType.SCALE: 1,
+                ExtraRecordType.TIME: 0,
+                ExtraRecordType.DISTANCE: 0
             }
 
             # apply extras
@@ -265,14 +267,20 @@ class _Summarizer(object):
     class DescriptionSummarizer(object):
         def __init__(self, extra_dict):
             super().__init__()
-            self.volume = 0
+
             self.times = 0
             self.descriptions = extra_dict[ExtraRecordType.DESCRIPTION]
 
             magnitude = float(extra_dict[ExtraRecordType.MAGNITUDE])
             scale = float(extra_dict[ExtraRecordType.SCALE])
             volume = magnitude * scale
-            self.add(volume)
+            self.volume = volume
+
+            self.others = {}
+            for type_ in (ExtraRecordType.DISTANCE, ExtraRecordType.TIME):
+                self.others[type_] = float(extra_dict[type_])
+
+            self.time()
 
         def __eq__(self, other):
             if len(self.descriptions) != len(other.descriptions):
@@ -285,12 +293,12 @@ class _Summarizer(object):
         def __iadd__(self, other):
             self.volume += other.volume
             self.times += other.times
+            for key in self.others.keys():
+                self.others[key] += other.others[key]
             return self
 
-        def add(self, volume):
-            if volume > 0:
-                self.volume += volume
-            else:
+        def time(self):
+            if self.volume == 0 and not any(self.others.values()):
                 self.times += 1
 
         def __str__(self):
@@ -298,6 +306,9 @@ class _Summarizer(object):
                 count = "(%.1f+%d)" % (self.volume, self.times)
             elif self.volume > 0:
                 count = "%.1f" % self.volume
+            elif any(self.others.values()):
+                count = ", ".join(["{0}{1}".format(type_.value[0:3], value)
+                                  for type_, value in self.others.items() if value > 0])
             else:  # self.times > 0
                 count = "%d" % self.times
 
@@ -311,6 +322,8 @@ class ExtraRecordType(Enum):
     DESCRIPTION = 'description'
     MAGNITUDE = 'magnitude'
     SCALE = 'scale'
+    TIME = 'time'
+    DISTANCE = 'distance'
 
     @staticmethod
     def from_value(value):
