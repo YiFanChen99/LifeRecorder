@@ -30,7 +30,7 @@ class FleshUtility(object):
     @staticmethod
     def get_count(date):
         try:
-            timeline = Timeline.select().prefetch(Flesh).where(Timeline.date == date).get()
+            timeline = Timeline.select().where(Timeline.date == date).get()
             return timeline.flesh[0].count
         except (DoesNotExist, IndexError):
             return 0
