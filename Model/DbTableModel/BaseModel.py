@@ -4,7 +4,7 @@ from enum import Enum
 from collections import OrderedDict
 import unittest
 
-from Model.DataAccessor.DbTableAccessor import fn, create
+from Model.DataAccessor.DbTableAccessor import fn
 
 
 class BaseModel(object):
@@ -45,7 +45,7 @@ class BaseModel(object):
         if not cls.ACCESSOR:
             raise NotImplementedError
 
-        return create(cls.ACCESSOR, **kwargs)
+        return cls.ACCESSOR.create(**kwargs)
 
 
 class DurationType(Enum):

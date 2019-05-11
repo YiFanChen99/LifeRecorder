@@ -9,7 +9,7 @@ import unittest
 from Model.TimeUtility import get_week_start, get_month_start
 from Model import Utility
 from Model.DbTableModel.BaseModel import BaseModel, DurationType, DurationalColumnModel
-from Model.DataAccessor.DbTableAccessor import atomic, create, DoesNotExist
+from Model.DataAccessor.DbTableAccessor import DoesNotExist
 from Model.DataAccessor.DbTableAccessor import RecordGroup, GroupRelation, BasicRecord, ExtraRecord, Timeline
 from Model.DataAccessor.Configure import group_alias_rules
 
@@ -46,7 +46,7 @@ class RecordUtility(object):
 
         @classmethod
         def add(cls, description, parent_id=-1):
-            with atomic() as transaction:
+            with RecordGroup.atomic() as transaction:
                 try:
                     group = RecordGroupModel.create(description=description)
                     if parent_id != -1:
@@ -59,7 +59,7 @@ class RecordUtility(object):
 
         @classmethod
         def _add_relation(cls, parent_id, child_group):
-            create(GroupRelation, parent=parent_id, child=child_group)
+            GroupRelation.create(parent=parent_id, child=child_group)
 
     class Basic:
         @staticmethod
@@ -69,7 +69,7 @@ class RecordUtility(object):
 
         @staticmethod
         def create_with_extras(date, group_id, extras):
-            with atomic() as txn:
+            with RecordGroup.atomic() as txn:
                 try:
                     basic_id = RecordUtility.Basic.create(date, group_id)
                     for extra in extras:
