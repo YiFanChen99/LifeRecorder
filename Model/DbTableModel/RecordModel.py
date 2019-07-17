@@ -99,13 +99,13 @@ class RecordUtility(object):
         def _rephrase_alias(group_id, description):
             result = description
 
-            # rephrase by my rules
+            # rephrase by my row_rules
             for name, rules in group_alias_rules[group_id].items():
                 pattern = re.compile("|".join(rules), flags=re.IGNORECASE)
                 result = pattern.sub(name, result)
 
             try:
-                # rephrase by ancestors's rules
+                # rephrase by ancestors's row_rules
                 parent_id = RecordUtility.Group.get_parent(group_id).id
                 return RecordUtility.Extra._rephrase_alias(parent_id, result)
             except AttributeError:
