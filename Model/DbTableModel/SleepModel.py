@@ -4,7 +4,7 @@ import datetime
 from collections import OrderedDict
 
 from Model.DbTableModel.BaseModel import BaseModel, DurationModel, DurationType, Func
-from Model import TimeUtility, Utility
+from Model import Utility
 from Model.DataAccessor.DbTableAccessor import Sleep, SleepDateView, DoesNotExist, fn
 
 
@@ -36,8 +36,8 @@ class SleepUtility(object):
             time_end += datetime.timedelta(days=1)
         elif time_start == time_end:
             raise ValueError("Start is equal to end.")
-        start = datetime.datetime.combine(date, TimeUtility.covert_timedelta_to_time(time_start))
-        end = datetime.datetime.combine(date, TimeUtility.covert_timedelta_to_time(time_end))
+        start = datetime.datetime.combine(date, datetime.datetime.min.time()) + time_start
+        end = datetime.datetime.combine(date, datetime.datetime.min.time()) + time_end
 
         return SleepUtility._create_with_feedback(start=start, end=end)
 
