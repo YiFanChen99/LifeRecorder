@@ -5,7 +5,6 @@ from PyQt5.QtGui import *
 
 from Model.DbTableModel.BaseModel import DurationType
 from Model.DbTableModel.SleepModel import SleepModel, SleepDurationModel
-from Model.DbTableModel.FleshModel import FleshDurationModel
 from Model.DbTableModel.RecordModel import RecordGroupModel, RecordDurationModel
 from Model.Utility import DateFilter
 
@@ -152,12 +151,6 @@ class SleepDurationTableModel(BaseDurationTableModel):
     DB_MODEL = SleepDurationModel
     DEFAULT_DURATION = DurationType.DAILY
     DEFAULT_DATE_FILTER = DateFilter.Type.ONE_MONTH
-
-
-class FleshDurationTableModel(BaseDurationTableModel):
-    DB_MODEL = FleshDurationModel
-    DEFAULT_DURATION = DurationType.WEEKLY
-    DEFAULT_DATE_FILTER = DateFilter.Type.SIX_MONTH
 
 
 class RecordDurationTableModel(BaseDurationTableModel):

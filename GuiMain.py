@@ -55,10 +55,6 @@ class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
                 'callback': lambda obj: obj.change_panel(1),
                 'shortcut': 'Ctrl+2',
             }),
-            ('Flesh', {
-                'callback': lambda obj: obj.change_panel(2),
-                'shortcut': 'Ctrl+3',
-            }),
         )),
         'default_selection': 0,
     }
@@ -71,7 +67,6 @@ class TimelinePanel(BaseVBoxPanel, HBoxMenuable, PanelChangeable):
         return (
             RecordDurationTablePanel(self),
             SleepDurationTablePanel(self),
-            FleshDurationTablePanel(self),
         )
 
 

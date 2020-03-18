@@ -12,6 +12,9 @@ class Timeline(BaseModel):
 
 
 class Flesh(BaseModel):
+    """
+    Unused, only keep for base unittests.
+    """
     date = ForeignKeyField(Timeline, backref='flesh')
     count = FloatField(default=1.0)
 

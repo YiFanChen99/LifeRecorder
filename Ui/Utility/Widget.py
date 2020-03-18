@@ -38,8 +38,7 @@ class HBoxMenu(QWidget):
         """
         >>> HBoxMenu(QWidget(), {
             'menu': {
-                'Sleep': {'callback': lambda obj: obj.method_sleep(), 'shortcut': 'F2'},
-                'Flesh': {'callback': lambda obj: obj.method_flesh()}
+                'Sleep': {'callback': lambda obj: obj.method_sleep(), 'shortcut': 'F2'}
             },
             'default_selection': 'Sleep'  # Optional
         })
